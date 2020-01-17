@@ -1,0 +1,27 @@
+func Main(a)
+  entry:
+    t = call run(10 12)
+    PrintInt(t)
+    ret 
+    
+func run(a b)
+  entry:
+    t = Lt(a b)
+    if t goto br1 else br2
+  br1:
+    a = 0
+    x = Add(a b)
+    y = Add(x 1)
+    t = Lt(y x)
+    if t goto br1 else end
+  br2:
+    b = 0
+    x = Add(d e)
+    y = Add(a b)
+    goto end
+  end:
+    z = Add(a b)
+    t = Add(x 1)
+    r = Add(z t)
+    ret r
+  
