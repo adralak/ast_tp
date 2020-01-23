@@ -33,26 +33,33 @@ public class TP1RtlFlowGraph extends FlowGraph {
      }
 
      public TP1RtlFlowGraph(Function f) {
+	  // First, allocate memory
 	  node_data = new HashMap<Node,Data>();
 	  instr_node = new HashMap<Instr,Node>();
 	  end_instr_node = new HashMap<EndInstr,Node>();
 
+	  /* The entry node is special because it does not have an instruction
+	     associated with it */
 	  e = f.getEntry();
 	  first = new Node();
 	  Data d = new Data(f.params);
 	  node_data.put(first, d);
 
+	  // Prepare the visitors
 	  TP1Visitor v = new TP1Visitor();
 	  TP1eVisitor v_end = new TP1eVisitor();
 
+	  // Make the subgraphs corresponding to each block
 	  for(Block b : f.blocks)
 	       make_graph_block(b, v, v_end);
 
+	  // Get ready to link the subgraphs
 	  JumpVisitor jv = new JumpVisitor();
 	  List<Block> jumps_to = null;
 	  EndInstr end;
 	  Node end_node, n;
 
+	  // Link them
 	  for(Block b : f.blocks)
 	  {
 	       end = b.getEnd();
@@ -69,6 +76,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	       }
 	  }
 
+	  // Clean up the extra edges
 	  Set<Node> nodes = this.nodes();
 	  
 	  for(Node m : nodes)
@@ -83,9 +91,11 @@ public class TP1RtlFlowGraph extends FlowGraph {
      
      private void make_graph_block(Block b, TP1Visitor v, TP1eVisitor v_end)
 	  {
+	       // Problem with making pred null, so cheat and make it first
 	       Node curr = new Node(), pred = first;
 	       Data d;
 
+	       // Get the data and draw the edges
 	       for(Instr i : b.instrs)
 	       {
 		    d = i.accept(v);
@@ -98,6 +108,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 		    curr = new Node();
 	       }
 
+	       // Handle the last instruction
 	       EndInstr end = b.getEnd();
 	       d = end.accept(v_end);
 	       node_data.put(curr, d);
