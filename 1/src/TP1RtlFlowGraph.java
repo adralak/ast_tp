@@ -23,7 +23,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	       return d.e;
 	  else if(n == first)
 	       return e;
-	  else 
+	  else
 	       return d.i;
      }
 
@@ -38,7 +38,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	  node_data.put(first, d);
 
 	  TP1Visitor v = new TP1Visitor();
-	  
+
 	  for(Block b : f.blocks)
 	       make_graph_block(b, v);
 
@@ -46,7 +46,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	  List<Block> jumps_to = null;
 	  EndInstr end;
 	  Node end_node, n;
-	  
+
 	  for(Block b : f.blocks)
 	  {
 	       end = b.getEnd();
@@ -66,10 +66,10 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	       Node curr = new Node();
 	       Node pred = first;
 	       Data d;
-	       
+
 	       for(Instr i : b.instrs)
 	       {
-		    d = i.accept(v);
+		    d = i.accept(v);modifie
 		    node_data.put(curr, d);
 		    instr_node.put(i, curr);
 		    addEdge(pred, curr);
@@ -83,7 +83,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	       end_instr_node.put(end, curr);
 	       addEdge(pred, curr);
 	  }
-     
+
      public List<Ident> def(Node node) {
 	  return node_data[node].def;
      }
@@ -122,7 +122,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 		    end = true;
 	       }
 
-	  Public Data(List<Ident> def)
+	  public Data(List<Ident> def)
 	       {
 		    use = new List<Ident>();
 		    this.def = def;
@@ -130,20 +130,127 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
      }
 
-     public class JumpVisitor implements InstrVisitor<List<Block>> {
-	  
+     public class OpVisitor implements OperandVisitor<Ident> {
+         public Ident visit(Ident id) {
+             return id;
+         }
+         public Ident visit(LitInt li) {
+             return null;
+         }
      }
-     
+
+     public class JumpVisitor implements EndInstrVisitor<List<Block>> {
+         public List<Block> visit(Goto g) {
+             List<Block> lb = new List<Block>();
+             lb.add(g.target);
+             return lb;
+         }
+
+         public List<Block> visit(Branch br) {
+             List<Block> lb = new List<Block>();
+             lb.add(br.thenTarget);
+             lb.add(br.elseTarget);
+             return lb;
+         }
+
+         public List<Block> visit(Return) {
+             List<Block> lb = new List<Block>();
+             return lb;
+         }
+     }
+
+     public class TP1eVisitor implement EndInstrVisitor<Data> {
+         public Data visit(Goto g) {
+             Data d = new Data(g);
+             return d;
+         }
+
+         public Data visit(Branch br) {
+             Data d = new Data(br);
+             Operand _operand = br.condition;
+             OpVisitor ov = new OpVisitor();
+             Ident i_op = _operand.accept(ov);
+             if (i_op != null) {
+                 d.use.add(i_op);
+             }
+             return d;
+         }
+
+         public Data visit(Return r) {
+             Data d = new Data(r);
+             return d;
+         }
+     }
+
+
      public class TP1Visitor implements InstrVisitor<Data> {
 
-	  public Data visit(Assign a) {
-	       Ident _ident = a.ident;
-	       Operand _operand = a.operand;
-			
-	  }
 
 
-     }
+        public Data visit(Assign a) {
+           Data d = new Data(a);
+           Ident _ident = a.ident;
+           Operand _operand = a.operand;
+           d.def.add(_ident);
+           OpVisitor ov = new OpVisitor();
+           Ident i_op = _operand.accept(ov);
+           if (i_op != null) {
+               d.use.add(i_op);
+           }
 
+           return d;
+
+        }
+
+        public Data visit(BuiltIn bi) {
+          Data d = new Data(bi);
+          Ident _ident = bi.target;
+          if (_ident != null) {
+              d.def.add(_ident);
+          }
+          for(Operand op : bi.args) {
+              OpVisitor ov = new OpVisitor();
+              Ident i_op = op.accept(ov);
+              if (i_op != null) {
+                  d.use.add(i_op);
+              }
+          }
+          return d;
+        }
+
+        public Data visit(Call c) {
+          Data d = new Data(c);
+          Ident _ident = c.target;
+          if (_ident != null) {
+              d.def.add(_ident);
+          }
+          for(Operand op : c.args) {
+              OpVisitor ov = new OpVisitor();
+              Ident i_op = op.accept(ov);
+              if (i_op != null) {
+                  d.use.add(i_op);
+              }
+          }
+          return d;
+        }
+
+          public Data visit(MemRead mr) {
+          Data d = new Data(mr);
+          Ident _ident = mr.ident;
+          d.def.add(_ident);
+          return d;
+        }
+
+          public Data visit(MemWrite mw){
+          Data d = new Data(mw);
+          OpVisitor ov = new OpVisitor();
+          Operand op = mw.operand;
+          Ident i_op = op.accept(ov);
+          if (i_op != null) {
+              d.use.add(i_op);
+          }
+          return d;
+        }
+    }
 
 }
