@@ -2,7 +2,10 @@ import rtl.graph.FlowGraph;
 import rtl.*;
 
 import java.util.Set;
+import java.util.HashSet;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TP1RtlFlowGraph extends FlowGraph {
 
@@ -17,7 +20,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
      }
 
      public Object instr(Node n) {
-	  Data d = node_data[n];
+	  Data d = node_data.get(n);
 
 	  if(d.end)
 	       return d.e;
@@ -51,13 +54,13 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	  for(Block b : f.blocks)
 	  {
 	       end = b.getEnd();
-	       end_node = end_instr_node[end];
+	       end_node = end_instr_node.get(end);
 	       jumps_to = end.accept(jv);
 
 	       for(Block j : jumps_to)
 	       {
 		    n = node(j.instrs.get(0));
-		    addEdge(end, n);
+		    addEdge(end_node, n);
 	       }
 	  }
      }
@@ -85,48 +88,50 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	       addEdge(pred, curr);
 	  }
 
-     public List<Ident> def(Node node) {
-	  return node_data[node].def;
+     public Set<Ident> def(Node node) {
+	  return node_data.get(node).def;
      }
 
-     public List<Ident> use(Node node) {
-	  return node_data[node].use;
+     public Set<Ident> use(Node node) {
+	  return node_data.get(node).use;
      }
 
      public Node node(Instr i) {
-	  return instr_node[i];
+	  return instr_node.get(i);
      }
 
      public Node node(EndInstr i) {
-	  return end_instr_node[i];
+	  return end_instr_node.get(i);
      }
 
      public class Data {
-	  public List<Ident> use;
-	  public List<Ident> def;
+	  public Set<Ident> use;
+	  public Set<Ident> def;
 	  public boolean end;
 	  public Instr i;
 	  public EndInstr e;
 
 	  public Data(Instr _i) {
-	       use = new List<Ident>();
-	       def = new List<Ident>();
+	       use = new HashSet<Ident>();
+	       def = new HashSet<Ident>();
 	       i = _i;
 	       end = false;
 	  }
 
 	  public Data(EndInstr _e)
 	       {
-		    use = new List<Ident>();
-		    def = new List<Ident>();
+		    use = new HashSet<Ident>();
+		    def = new HashSet<Ident>();
 		    e = _e;
 		    end = true;
 	       }
 
 	  public Data(List<Ident> def)
 	       {
-		    use = new List<Ident>();
-		    this.def = def;
+		    use = new HashSet<Ident>();
+		    this.def = new HashSet<Ident>();
+		    
+		    this.def.addAll(def);
 	       }
 
      }
@@ -142,20 +147,20 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
      public class JumpVisitor implements EndInstrVisitor<List<Block>> {
          public List<Block> visit(Goto g) {
-             List<Block> lb = new List<Block>();
+             List<Block> lb = new ArrayList<Block>();
              lb.add(g.target);
              return lb;
          }
 
          public List<Block> visit(Branch br) {
-             List<Block> lb = new List<Block>();
+             List<Block> lb = new ArrayList<Block>();
              lb.add(br.thenTarget);
              lb.add(br.elseTarget);
              return lb;
          }
 
          public List<Block> visit(Return r) {
-             List<Block> lb = new List<Block>();
+             List<Block> lb = new ArrayList<Block>();
              return lb;
          }
      }
