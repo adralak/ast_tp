@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Iterator;
 
 public class TP1RtlFlowGraph extends FlowGraph {
 
@@ -13,6 +14,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
      private HashMap<Instr,Node> instr_node;
      private HashMap<EndInstr,Node> end_instr_node;
      private Node first;
+     private Node dummy;
      private Block e;
 
      public Node entry() {
@@ -42,18 +44,9 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
 	  TP1Visitor v = new TP1Visitor();
 	  TP1eVisitor v_end = new TP1eVisitor();
-	  boolean first_iteration = true;
 
 	  for(Block b : f.blocks)
-	  {
-	       if(first_iteration)
-	       {
-		    make_graph_block(b, v, v_end, first);
-		    first_iteration = false;
-	       }
-	       else
-		    make_graph_block(b, v, v_end, null);
-	  }
+	       make_graph_block(b, v, v_end);
 
 	  JumpVisitor jv = new JumpVisitor();
 	  List<Block> jumps_to = null;
@@ -75,11 +68,22 @@ public class TP1RtlFlowGraph extends FlowGraph {
 		    }
 	       }
 	  }
-     }
 
-     private void make_graph_block(Block b, TP1Visitor v, TP1eVisitor v_end, Node pred)
+	  Set<Node> nodes = this.nodes();
+	  
+	  for(Node m : nodes)
 	  {
-	       Node curr = new Node();
+	       if(first.goesTo(m))
+		    rmEdge(first, m);
+	  }
+
+	  addEdge(first, node(e.instrs.get(0)));
+
+     }
+     
+     private void make_graph_block(Block b, TP1Visitor v, TP1eVisitor v_end)
+	  {
+	       Node curr = new Node(), pred = first;
 	       Data d;
 
 	       for(Instr i : b.instrs)
@@ -87,10 +91,9 @@ public class TP1RtlFlowGraph extends FlowGraph {
 		    d = i.accept(v);
 		    node_data.put(curr, d);
 		    instr_node.put(i, curr);
-		    
-		    if(pred != null)
-			 addEdge(pred, curr);
-		    
+
+		    addEdge(pred, curr);
+		    		    
 		    pred = curr;
 		    curr = new Node();
 	       }
