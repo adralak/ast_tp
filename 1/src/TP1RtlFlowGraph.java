@@ -42,9 +42,18 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
 	  TP1Visitor v = new TP1Visitor();
 	  TP1eVisitor v_end = new TP1eVisitor();
+	  boolean first_iteration = true;
 
 	  for(Block b : f.blocks)
-	       make_graph_block(b, v, v_end);
+	  {
+	       if(first_iteration)
+	       {
+		    make_graph_block(b, v, v_end, first);
+		    first_iteration = false;
+	       }
+	       else
+		    make_graph_block(b, v, v_end, null);
+	  }
 
 	  JumpVisitor jv = new JumpVisitor();
 	  List<Block> jumps_to = null;
@@ -59,16 +68,18 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
 	       for(Block j : jumps_to)
 	       {
-		    n = node(j.instrs.get(0));
-		    addEdge(end_node, n);
+		    if(!j.instrs.isEmpty())
+		    {
+			 n = node(j.instrs.get(0));
+			 addEdge(end_node, n);
+		    }
 	       }
 	  }
      }
 
-     private void make_graph_block(Block b, TP1Visitor v, TP1eVisitor v_end)
+     private void make_graph_block(Block b, TP1Visitor v, TP1eVisitor v_end, Node pred)
 	  {
 	       Node curr = new Node();
-	       Node pred = first;
 	       Data d;
 
 	       for(Instr i : b.instrs)
@@ -76,7 +87,10 @@ public class TP1RtlFlowGraph extends FlowGraph {
 		    d = i.accept(v);
 		    node_data.put(curr, d);
 		    instr_node.put(i, curr);
-		    addEdge(pred, curr);
+		    
+		    if(pred != null)
+			 addEdge(pred, curr);
+		    
 		    pred = curr;
 		    curr = new Node();
 	       }
