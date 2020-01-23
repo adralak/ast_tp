@@ -36,8 +36,54 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	  first = new Node();
 	  Data d = new Data(f.params);
 	  node_data.put(first, d);
+
+	  TP1Visitor v = new TP1Visitor();
+	  
+	  for(Block b : f.blocks)
+	       make_graph_block(b, v);
+
+	  JumpVisitor jv = new JumpVisitor();
+	  List<Block> jumps_to = null;
+	  EndInstr end;
+	  Node end_node, n;
+	  
+	  for(Block b : f.blocks)
+	  {
+	       end = b.getEnd();
+	       end_node = end_instr_node[end];
+	       jumps_to = end.accept(jv);
+
+	       for(Block j : jumps_to)
+	       {
+		    n = instr_node[j.instrs.get(0)];
+		    addEdge(end, n);
+	       }
+	  }
      }
 
+     private void make_graph_block(Block b, TP1Visitor v)
+	  {
+	       Node curr = new Node();
+	       Node pred = first;
+	       Data d;
+	       
+	       for(Instr i : b.instrs)
+	       {
+		    d = i.accept(v);
+		    node_data.put(curr, d);
+		    instr_node.put(i, curr);
+		    addEdge(pred, curr);
+		    pred = curr;
+		    curr = new Node();
+	       }
+
+	       EndInstr end = b.getEnd();
+	       d = end.accept(v);
+	       node_data.put(curr, d);
+	       end_instr_node.put(end, curr);
+	       addEdge(pred, curr);
+	  }
+     
      public List<Ident> def(Node node) {
 	  return node_data[node].def;
      }
@@ -84,6 +130,10 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
      }
 
+     public class JumpVisitor implements InstrVisitor<List<Block>> {
+	  
+     }
+     
      public class TP1Visitor implements InstrVisitor<Data> {
 
 	  public Data visit(Assign a) {
