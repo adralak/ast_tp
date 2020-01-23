@@ -55,7 +55,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
 	       for(Block j : jumps_to)
 	       {
-		    n = instr_node[j.instrs.get(0)];
+		    n = node(j.instrs.get(0));
 		    addEdge(end, n);
 	       }
 	  }
