@@ -154,7 +154,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
              return lb;
          }
 
-         public List<Block> visit(Return) {
+         public List<Block> visit(Return r) {
              List<Block> lb = new List<Block>();
              return lb;
          }
