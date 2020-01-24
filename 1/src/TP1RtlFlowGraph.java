@@ -78,7 +78,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 
 	  // Clean up the extra edges
 	  Set<Node> nodes = this.nodes();
-	  
+
 	  for(Node m : nodes)
 	  {
 	       if(first.goesTo(m))
@@ -88,7 +88,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	  addEdge(first, node(e.instrs.get(0)));
 
      }
-     
+
      private void make_graph_block(Block b, TP1Visitor v, TP1eVisitor v_end)
 	  {
 	       // Problem with making pred null, so cheat and make it first
@@ -103,7 +103,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
 		    instr_node.put(i, curr);
 
 		    addEdge(pred, curr);
-		    		    
+
 		    pred = curr;
 		    curr = new Node();
 	       }
@@ -158,12 +158,13 @@ public class TP1RtlFlowGraph extends FlowGraph {
 	       {
 		    use = new HashSet<Ident>();
 		    this.def = new HashSet<Ident>();
-		    
+
 		    this.def.addAll(def);
 	       }
 
      }
 
+     // Basic visitor for operand, if it is a constant it return null
      public class OpVisitor implements OperandVisitor<Ident> {
          public Ident visit(Ident id) {
              return id;
@@ -173,6 +174,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
          }
      }
 
+     // Visitor which get blocks from EndInstr
      public class JumpVisitor implements EndInstrVisitor<List<Block>> {
          public List<Block> visit(Goto g) {
              List<Block> lb = new ArrayList<Block>();
@@ -193,6 +195,7 @@ public class TP1RtlFlowGraph extends FlowGraph {
          }
      }
 
+    // Visitor which get data from EndInstr
      public class TP1eVisitor implements EndInstrVisitor<Data> {
          public Data visit(Goto g) {
              Data d = new Data(g);
@@ -216,10 +219,8 @@ public class TP1RtlFlowGraph extends FlowGraph {
          }
      }
 
-
+     //Visitor which get data from Instr
      public class TP1Visitor implements InstrVisitor<Data> {
-
-
 
         public Data visit(Assign a) {
            Data d = new Data(a);
