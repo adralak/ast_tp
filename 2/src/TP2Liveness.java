@@ -15,7 +15,7 @@ import rtl.graph.DiGraph.Node;
  */
 public class TP2Liveness implements AbstractLiveness {
 	/**
-	 * Le {@link rtl.graph.FlowGraph} sur lequel est éfféctué l'analyse.
+	 * Le {@link rtl.graph.FlowGraph} sur lequel est effectué l'analyse.
 	 */
 	private FlowGraph g;
 
@@ -29,6 +29,7 @@ public class TP2Liveness implements AbstractLiveness {
 	 */
 	private Map<Node,Set<Ident>> liveOut = new Hashtable<Node,Set<Ident>>();
 
+    private Map<Node,boolean> is_done = new Hashtable<Node,boolean>();
 	/**
 	 * Utilisé pour l'affichage du calcul itératif.
 	 */
@@ -61,13 +62,13 @@ public class TP2Liveness implements AbstractLiveness {
 		for (Node n : g.nodes()) {
 			liveIn.put(n, new HashSet<Ident>());
 			liveOut.put(n, new HashSet<Ident>());
+			is_done.put(n, false);
 		}
 
 		// Effectue une passe de l'analyse.
 		onePass();
-
 		// Continue l'analyse tant qu'un point fixe n'a pas été trouvé.
-		while (!isFixedPoint())
+		while (isNotFixedPoint())
 			onePass();
 	}
 
@@ -109,8 +110,14 @@ public class TP2Liveness implements AbstractLiveness {
 			liveIn.get(n) = liveOut.get(n).clone();
 			liveIn.get(n).removeAll(g.def(n));
 			liveIn.get(n).addAll(g.use(n));
+
+			if (oliveIn.get(n) == liveIn.get(n) && oliveOut.get(n) == liveOut.get(n)) {
+				is_done.get(n) = true;
+			}
+
+			is_done.get(n) = false;
 		}
-		
+
 		// On utilise le débogueur pour afficher (plus tard) ce qu'il s'est passé pendant cette passe.
 		if (debug!=null) {
 			debug.recordCurrentMaps(liveIn, liveOut); // ne pas modifier
@@ -121,8 +128,8 @@ public class TP2Liveness implements AbstractLiveness {
 	 * Determine si un point fixe a été trouvé.
 	 * @return true si rien n'a changé entre les deux derniers appels à {@link #onePass()}.
 	 */
-	private boolean isFixedPoint() {
-		return true; //TODO
+	private boolean isNotFixedPoint() {
+	     return is_done.contains(false);
 	}
 
 	/**
