@@ -1,0 +1,50 @@
+func Main(a)
+  entry:
+    t.0 = 42
+    t.1 = Add(5 t.0)
+    t.2 = Sub(t.1 2)
+    f = Mul(t.1 t.2)
+    PrintInt(f)
+    ret
+
+func WithMemory()
+  entry:
+    t.1 = Alloc(10)
+    t.2 = [t.1 + 5]
+    ret t.2
+    
+func WithWeirdMemory()
+  entry:
+    t.0 = 4
+    [t.0 + 1] = 34
+    t.2 = [t.0 + 2]
+    ret t.2
+
+func Branching()
+  entry:
+   t.0 = 0
+   goto br1 //if t.0 goto br1 else br2
+  br1:
+   t.2 = Add(t.0 3)
+   t.4 = Add(t.2 1)
+   goto end
+  br2:
+   t.2 = Add(t.0 4)
+   t.4 = t.2
+   goto end
+  end:
+   t.3 = Add(t.2 1)
+   t.5 = Add(t.4 1)
+   t.6 = Add(t.3 t.5)
+   ret t.6
+   
+func WithArg(a)
+  entry:
+    t.0 = Add(a 1)
+    ret t.0
+
+func WithRedef()
+  entry:
+    x = 0
+    x = Add(x 1)
+    ret x
