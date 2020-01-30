@@ -6,6 +6,7 @@ import rtl.Ident;
 import rtl.graph.AbstractInterferenceGraph;
 import rtl.graph.FlowGraph;
 import rtl.graph.Graph.Node;
+import rtl.graph.DiGraph;
 
 /**
  * Graphe d'interference entre les variables du programme.
@@ -24,7 +25,7 @@ public class TP2InterferenceGraph extends AbstractInterferenceGraph {
 	public TP2InterferenceGraph(FlowGraph g, AbstractLiveness live) {
 	     Node x, y;
 	     
-	     for(Node n : g.nodes())
+	     for(DiGraph.Node n : g.nodes())
 	     {
 		  for(Ident id : g.use(n))
 		  {
@@ -49,7 +50,7 @@ public class TP2InterferenceGraph extends AbstractInterferenceGraph {
 
      private Node get_node(Ident id)
 	  {
-	       if(id_to_node.containesKey(id))
+	       if(id_to_node.containsKey(id))
 		    return id_to_node.get(id);
 	       else
 	       {
