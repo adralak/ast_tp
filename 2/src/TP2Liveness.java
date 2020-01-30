@@ -80,32 +80,34 @@ public class TP2Liveness implements AbstractLiveness {
 		Map<Node,Set<Ident>> oliveIn = new Hashtable<Node,Set<Ident>>();
 		Map<Node,Set<Ident>> oliveOut = new Hashtable<Node,Set<Ident>>();
 
+		System.out.println("-----");
 		for (Node n : g.nodes()) {
 			oliveIn.put(n, new HashSet<Ident>(liveIn.get(n)));
 			oliveOut.put(n, new HashSet<Ident>(liveOut.get(n)));
-		}
-
-		for (Node n : g.nodes()) {
-			liveOut.put(n,new HashSet<Ident>());
 			Set<Ident> nOut = new HashSet<Ident>();
 			Set<Ident> nIn = new HashSet<Ident>();
 			for (Node n_n : n.succ()) {
 				nOut.addAll(new HashSet<Ident>(liveIn.get(n_n)));
 			}
 			nIn.addAll(new HashSet<Ident>(liveOut.get(n)));
-			System.out.println("In : " + nIn);
 			nIn.removeAll(g.def(n));
 			nIn.addAll(g.use(n));
 
 			liveOut.put(n,new HashSet<Ident>(nOut));
 			liveIn.put(n,new HashSet<Ident>(nIn));
 
-			if (oliveIn.get(n) == liveIn.get(n) && oliveOut.get(n) == liveOut.get(n)) {
+			//System.out.println("oldIn :" + oliveIn.get(n));
+			//System.out.println("newIn :" + liveIn.get(n));
+			//System.out.println("oldOut :" + oliveOut.get(n));
+			//System.out.println("newOut :" + liveOut.get(n));
+
+			if (oliveIn.get(n).equals(liveIn.get(n)) && oliveOut.get(n).equals(liveOut.get(n))) {
 				is_done.put(n,true);
 			}
 			else {
 				is_done.put(n,false);
 			}
+			//System.out.println(is_done);
 		}
 
 		// On utilise le débogueur pour afficher (plus tard) ce qu'il s'est passé pendant cette passe.
