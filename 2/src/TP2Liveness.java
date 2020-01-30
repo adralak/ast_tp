@@ -29,7 +29,7 @@ public class TP2Liveness implements AbstractLiveness {
 	 */
 	private Map<Node,Set<Ident>> liveOut = new Hashtable<Node,Set<Ident>>();
 
-    private Map<Node,boolean> is_done = new Hashtable<Node,boolean>();
+    private Map<Node,Boolean> is_done = new Hashtable<Node,Boolean>();
 	/**
 	 * Utilisé pour l'affichage du calcul itératif.
 	 */
@@ -81,41 +81,31 @@ public class TP2Liveness implements AbstractLiveness {
 		Map<Node,Set<Ident>> oliveOut = new Hashtable<Node,Set<Ident>>();
 
 		for (Node n : g.nodes()) {
-			oliveIn.put(n, liveIn.get(n).clone());
-			oliveOut.put(n, liveOut.get(n).clone());
+			oliveIn.put(n, new HashSet<Ident>(liveIn.get(n)));
+			oliveOut.put(n, new HashSet<Ident>(liveOut.get(n)));
 		}
 
 		for (Node n : g.nodes()) {
-			// ensemble des sommets deja visités
-			List node_visited = new ArrayList<Node>();
-			List node_to_visit = new ArrayList<Node>();
-			node_visited.add(n);
-			node_to_visit.addAll(n.succ());
-			// boolean pour savoir si Lin et Lout ont été modifié
-			boolean uLin = true;
-			boolean uLout = true;
-
-			liveOut.get(n) = new HashSet<Ident>();
-
-			while(node_to_visit.size() != 0) {
-				liveOut.get(n).addAll(liveIn.get(node_to_visit.get(0)));
-				node_visited.add(node_to_visit.get(0));
-				for (Node n_n : node_to_visit.get(0).succ()) {
-					if(!node_visited.contains(n_n)) {
-						node_to_visit.add(n_n);
-					}
-				}
-				node_to_visit.remove(0);
+			liveOut.put(n,new HashSet<Ident>());
+			Set<Ident> nOut = new HashSet<Ident>();
+			Set<Ident> nIn = new HashSet<Ident>();
+			for (Node n_n : n.succ()) {
+				nOut.addAll(new HashSet<Ident>(liveIn.get(n_n)));
 			}
-			liveIn.get(n) = liveOut.get(n).clone();
-			liveIn.get(n).removeAll(g.def(n));
-			liveIn.get(n).addAll(g.use(n));
+			nIn.addAll(new HashSet<Ident>(liveOut.get(n)));
+			System.out.println("In : " + nIn);
+			nIn.removeAll(g.def(n));
+			nIn.addAll(g.use(n));
+
+			liveOut.put(n,new HashSet<Ident>(nOut));
+			liveIn.put(n,new HashSet<Ident>(nIn));
 
 			if (oliveIn.get(n) == liveIn.get(n) && oliveOut.get(n) == liveOut.get(n)) {
-				is_done.get(n) = true;
+				is_done.put(n,true);
 			}
-
-			is_done.get(n) = false;
+			else {
+				is_done.put(n,false);
+			}
 		}
 
 		// On utilise le débogueur pour afficher (plus tard) ce qu'il s'est passé pendant cette passe.
@@ -128,8 +118,8 @@ public class TP2Liveness implements AbstractLiveness {
 	 * Determine si un point fixe a été trouvé.
 	 * @return true si rien n'a changé entre les deux derniers appels à {@link #onePass()}.
 	 */
-	private boolean isNotFixedPoint() {
-	     return is_done.contains(false);
+	private Boolean isNotFixedPoint() {
+	     return is_done.containsValue(false);
 	}
 
 	/**
