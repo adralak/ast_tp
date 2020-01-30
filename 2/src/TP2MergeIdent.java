@@ -5,6 +5,10 @@ import rtl.graph.AbstractInterferenceGraph;
 import rtl.graph.ColorGraph;
 import rtl.*;
 
+import java.util.Hashtable;
+import java.util.Map;
+
+
 /**
  * Transformation du programme fusionnant les variables non interférantes.
  */
@@ -25,7 +29,7 @@ public class TP2MergeIdent extends SimpleTransform {
      AbstractColorGraph cg;
 
 
-     Map<int,Ident> colors;
+     Map<Smart_Integer,Ident> colors;
      
      /**
       * Construction de la transformation à partir des information d'interférance des variables.
@@ -37,7 +41,7 @@ public class TP2MergeIdent extends SimpleTransform {
 	  this.f = f;
 	  this.igraph = igraph;
 	  this.cg = cg;
-	  this.colors = new HashMap<int,Ident>();
+	  this.colors = new Hashtable<int,Ident>();
      }
 
      /**
@@ -71,7 +75,7 @@ public class TP2MergeIdent extends SimpleTransform {
       */
      @Override
      public Ident transform(Ident id) {
-	  int c = cg.color(igraph.node(id));
+	  Smart_Integer c = new Smart_Integer(cg.color(igraph.node(id)));
 	  Ident new_id = new Ident(id);
 
 	  if(colors.containsKey(c))
@@ -82,4 +86,20 @@ public class TP2MergeIdent extends SimpleTransform {
 	  return new_id;
      }
 
+     
+private class Smart_Integer
+{
+     int n;
+
+     public Smart_Integer(int n)
+	  {
+	       this.n = n;
+	  }
+
+     @Override
+     public int hashCode()
+	  {
+	       return n;
+	  }
+}
 }
