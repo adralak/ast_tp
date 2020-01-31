@@ -27,7 +27,7 @@ public class TP2InterferenceGraph extends AbstractInterferenceGraph {
 	     
 	     for(DiGraph.Node n : g.nodes())
 	     {
-		  for(Ident id : g.use(n))
+		  for(Ident id : g.def(n))
 		  {
 		       x = get_node(id);
 

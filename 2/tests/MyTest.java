@@ -70,7 +70,7 @@ class MyTest {
 				
 				// Transformation du programme pour fusionner des variables
 				TP2MergeIdent.transform(prog);
-				//prog.print(); //pour afficher le nouveau programme
+				prog.print(); //pour afficher le nouveau programme
 				
 				// Exécution du programme après transformation.
 				List<Integer> execAfterTransformation = new Eval().runOnList(prog);			

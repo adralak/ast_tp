@@ -75,9 +75,12 @@ public class TP2MergeIdent extends SimpleTransform {
       */
      @Override
      public Ident transform(Ident id) {
+	  if(id == null)
+	       return null;
+	  
 	  Smart_Integer c = new Smart_Integer(cg.color(igraph.node(id)));
 	  Ident new_id = id;
-
+	  
 	  if(colors.containsKey(c))
 	       new_id = colors.get(c);
 	  else
