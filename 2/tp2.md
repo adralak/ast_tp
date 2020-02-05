@@ -1,4 +1,4 @@
- Ce TP comporte 3 parties et s'appuie sur le CM3. Chaque partie correspond à un fichier à compléter. Il y a donc 3 fichiers à rendre au final. La quatrième partie, optionnelle, correspond à un quatrième fichier.
+Ce TP comporte 3 parties et s'appuie sur le CM3. Chaque partie correspond à un fichier à compléter. Il y a donc 3 fichiers à rendre au final. La quatrième partie, optionnelle, correspond à un quatrième fichier.
 
 
 # Partie 1 : analyse de durée de vie (fichier TP2Liveness.java)

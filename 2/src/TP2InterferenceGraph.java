@@ -24,13 +24,18 @@ public class TP2InterferenceGraph extends AbstractInterferenceGraph {
 	 */
 	public TP2InterferenceGraph(FlowGraph g, AbstractLiveness live) {
 	     Node x, y;
-	     
+
+	     // Iterate over the nodes of g
 	     for(DiGraph.Node n : g.nodes())
 	     {
+		  // For each defined variable at point n
 		  for(Ident id : g.def(n))
 		  {
+		       /* Get the node of the variable, if it exists,
+			  otherwise, make one */
 		       x = get_node(id);
-
+		       
+		       // Add an edge between x and each interfering variable
 		       for(Ident other_id : live.liveOut(n))
 		       {
 			    if(!id.equals(other_id))
@@ -48,6 +53,9 @@ public class TP2InterferenceGraph extends AbstractInterferenceGraph {
 	     }
 	}
 
+     /* In: id of a variable
+	Out: node n corresponding to id in this graph
+	If the node does not exist, it is created */
      private Node get_node(Ident id)
 	  {
 	       if(id_to_node.containsKey(id))

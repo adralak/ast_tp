@@ -4,10 +4,12 @@ import rtl.graph.AbstractColorGraph;
 import rtl.graph.AbstractInterferenceGraph;
 import rtl.graph.ColorGraph;
 import rtl.*;
+import rtl.graph.Graph.Node;
 
 import java.util.Hashtable;
 import java.util.Map;
-
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Transformation du programme fusionnant les variables non interférantes.
@@ -28,8 +30,7 @@ public class TP2MergeIdent extends SimpleTransform {
       */
      AbstractColorGraph cg;
 
-
-     Map<Smart_Integer,Ident> colors;
+     ArrayList<Ident> colors;
      
      /**
       * Construction de la transformation à partir des information d'interférance des variables.
@@ -41,7 +42,22 @@ public class TP2MergeIdent extends SimpleTransform {
 	  this.f = f;
 	  this.igraph = igraph;
 	  this.cg = cg;
-	  this.colors = new Hashtable<Smart_Integer,Ident>();
+	  this.colors = new ArrayList();
+
+	  int n_c = 0;
+	  
+	  for(Node n : igraph.nodes())
+	  {
+	       if(this.colors.contains(cg.color(n)))
+		    continue;
+	       else
+		    ++n_c;
+	  }
+
+	  this.colors = new ArrayList(n_c);
+
+	  for(int i = 0; i < n_c; ++i)
+	       this.colors.add(i, new Ident("fresh" + String.valueOf(i)));
      }
 
      /**
@@ -75,34 +91,22 @@ public class TP2MergeIdent extends SimpleTransform {
       */
      @Override
      public Ident transform(Ident id) {
+	  // If the id is null, there's nothing to do
 	  if(id == null)
 	       return null;
+
+	  // If it's a parameter, we don't touch it
+	  if(f.params.contains(id))
+	       return id;
 	  
-	  Smart_Integer c = new Smart_Integer(cg.color(igraph.node(id)));
-	  Ident new_id = id;
+	  int c = cg.color(igraph.node(id));
+	  Ident new_id = colors.get(c);
 	  
-	  if(colors.containsKey(c))
-	       new_id = colors.get(c);
-	  else
-	       colors.put(c, id);
-	  
+	  System.out.println("Old: " + id);
+	  System.out.println("New: " + new_id);
 	  return new_id;
      }
-
-     
-private class Smart_Integer
-{
-     int n;
-
-     public Smart_Integer(int n)
-	  {
-	       this.n = n;
-	  }
-
-     @Override
-     public int hashCode()
-	  {
-	       return n;
-	  }
 }
-}
+
+
+
