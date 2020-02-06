@@ -1,0 +1,3 @@
+#!/bin/sh
+make tests
+java -cp minijava.jar:bin Test < $1
