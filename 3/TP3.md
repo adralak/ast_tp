@@ -1,7 +1,7 @@
 Utilisez le projet fourni dans tp3.tar.gz, comme pour les TPs précédents (importez-le sous Eclipse, configurez l'exécution de MyTest.java pour qu'il reçoive un fichier en entrée).
 
 
- Ce TP comporte 4 parties et s'appuie sur le CM3. Chaque partie correspond à un fichier à compléter. Il y a donc 4 fichiers à rendre au final. Le fichier TP3ConstSimplification.java n'est pas à rendre.
+ Ce TP comporte 4 parties et s'appuie sur le CM4. Chaque partie correspond à un fichier à compléter. Il y a donc 4 fichiers à rendre au final. Le fichier TP3ConstSimplification.java n'est pas à rendre.
 
 # Partie 1: analyse des définitions possibles (fichier TP3ReachableDef.java)
 Complétez le fichier pour construire une analyse des définitions possibles. Lancer MyTest pour voir les différentes étapes du calcul de point fixe de l'analyse obtenue.
