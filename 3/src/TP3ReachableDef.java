@@ -166,7 +166,7 @@ public class TP3ReachableDef {
 		  Set<RDPair> nOut = new HashSet<RDPair>();
 		  Set<RDPair> nIn = new HashSet<RDPair>();
 		  // Build nOut
-		  for (Node n_n : n.succ()) {
+		  for (Node n_n : n.pred()) {
 		  	  nIn.addAll(new HashSet<RDPair>(rdOut.get(n_n)));
 		  }
 		  // Build nIn
