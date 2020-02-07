@@ -70,33 +70,167 @@ public class TP3ConstPropReachDef extends Transform {
       * Transformation d'une instruction d'affectation.
       */
      public TransformInstrResult transform(Assign a) {
-	  // TODO
-	  // Création de la nouvelle instruction (TODO)
 	  Node n = cfg.node(a);
-	  Instr newInstr = a.accept(new TP3_InstrVisitor()); // ceci est juste un exemple !
-	  
-	  // Mise à jour du cfg avec cette nouvelle instruction pour le nœud
-
-	  // La classe RtlCFG étend FlowGraph en ajoutant des méthodes
-	  //   public Node node(Instr i) 
-	  //   public Node node(EndInstr i) 
-	  // qui vous permettent de récupérer les noeuds associés à des instructions.
-	  // La recherche effectuée se base sur des tests d'égalité physique donc
-	  // deux instructions égales structurellement peuvent renvoyer deux 
-	  // noeuds différents.
+	  Instr newInstr = a.accept(new TP3_InstrVisitor());
 		
 	  cfg.updateInstr(n, newInstr);
-	  // La classe RtlCFG ajoute aussi deux méthodes
-	  //   public void updateInstr(Node n, Instr newInstr) 
-	  //   public void updateInstr(Node n, EndInstr newInstr)
-	  // qui vous permettent de mettre à jour un cfg avec une nouvelle instruction.
-	  // Le noeud n doit déjà exister et la nouvelle instruction doit suivre le même
-	  // flot de controle que l'ancienne.
 		
-	  return new TransformInstrResult(newInstr); // allez voir la déclaration de TransformInstrResult
+	  return new TransformInstrResult(newInstr);
+     }
+
+
+     public TransformInstrResult transform(BuiltIn bi) {
+	  Node n = cfg.node(bi);
+	  Instr newInstr = bi.accept(new TP3_InstrVisitor());
+	  
+	  cfg.updateInstr(n, newInstr);
+	  
+	  return new TransformInstrResult(newInstr);
+     }
+     public TransformInstrResult transform(Call c) {
+	  Node n = cfg.node(c);
+	  Instr newInstr = c.accept(new TP3_InstrVisitor());
+
+	  cfg.updateInstr(n, newInstr);
+		
+	  return new TransformInstrResult(newInstr);
+     }
+     public TransformInstrResult transform(MemRead mr) {
+	  Node n = cfg.node(mr);
+	  Instr newInstr = mr.accept(new TP3_InstrVisitor());
+		
+	  cfg.updateInstr(n, newInstr);
+		
+	  return new TransformInstrResult(newInstr);
+     }
+     public TransformInstrResult transform(MemWrite mw) {
+	  Node n = cfg.node(mw);
+	  Instr newInstr = mw.accept(new TP3_InstrVisitor());
+	  
+	  cfg.updateInstr(n, newInstr);
+		
+	  return new TransformInstrResult(newInstr);
+     }
+
+     public TransformEndInstrResult transform(Goto g) {
+	  Node n = cfg.node(g);
+	  EndInstr newInstr = g.accept(new TP3_EndInstrVisitor());
+	  
+	  cfg.updateInstr(n, newInstr);
+		
+	  return new TransformEndInstrResult(newInstr);
+     }
+     public TransformEndInstrResult transform(Branch br) {
+	  Node n = cfg.node(br);
+	  EndInstr newInstr = br.accept(new TP3_EndInstrVisitor());
+	  
+	  cfg.updateInstr(n, newInstr);
+		
+	  return new TransformEndInstrResult(newInstr);
+     }
+     public TransformEndInstrResult transform(Return r) {
+	  Node n = cfg.node(r);
+	  EndInstr newInstr = r.accept(new TP3_EndInstrVisitor());
+	  
+	  cfg.updateInstr(n, newInstr);
+		
+	  return new TransformEndInstrResult(newInstr);
      }
 
      // TODO : une rédéfinition de chaque méthode transform de la classe Transform
+
+     private class TP3_EndInstrVisitor implements EndInstrVisitor<EndInstr>
+     {
+	  Node n;
+	  
+	  public EndInstr visit(Goto g)
+	       {
+		    return g;
+	       }
+
+	  public EndInstr visit(Branch br)
+	       {
+		    n = cfg.node(br);
+		    LitInt cst = br.condition.accept(new Const_OperandVisitor());
+
+		    if(cst == null)
+			 return br;
+		    else
+			 return new Branch(cst, br.thenTarget, br.elseTarget);
+	       }
+
+	  public EndInstr visit(Return r)
+	       {
+		    n = cfg.node(r);
+
+		    if(r.operand == null)
+			 return r;
+		    
+		    LitInt cst = r.operand.accept(new Const_OperandVisitor());
+
+		    if(cst == null)
+			 return r;
+		    else
+			 return new Return(cst);
+	       }
+
+	  private class Const_OperandVisitor implements OperandVisitor<LitInt>
+	  {
+	       public LitInt visit(Ident id)
+		    {
+			 Set<Node> defs = useDef.get(n).get(id);
+			 LitInt cst = null;
+			 for(Node n : defs)
+			 {
+			      Instr def = (Instr) cfg.instr(n);
+			      
+			      LitInt def_cst = def.accept(new Const_InstrVisitor());
+			      if(def_cst == null)
+				   return null;
+			      else if(cst == null)
+				   cst = def_cst;
+			      else
+			      {
+				   if(!cst.equals(def_cst))
+					return null;
+			      }
+			 }
+
+			 return cst;
+		    }
+
+	       public LitInt visit(LitInt cst)
+		    {
+			 return cst;
+		    }
+	  }
+
+	  
+	  private class Const_InstrVisitor implements InstrVisitor<LitInt>
+	  {
+	       public LitInt visit(Assign a)
+		    {
+			 return a.operand.accept(new Const_OperandVisitor());
+		    }
+	       public LitInt visit(BuiltIn bi)
+		    {
+			 return null;
+		    }
+	       public LitInt visit(Call c)
+		    {
+			 return null;
+		    }
+	       public LitInt visit(MemRead mr)
+		    {
+			 return null;
+		    }
+	       public LitInt visit(MemWrite mw)
+		    {
+			 return null;
+		    }
+	  }
+
+     }
      
      private class TP3_InstrVisitor implements InstrVisitor<Instr>
      {
@@ -123,7 +257,6 @@ public class TP3ConstPropReachDef extends Transform {
 		    for(Operand arg : args)
 		    {
 			 LitInt cst = arg.accept(v);
-
 			 if(cst == null)
 			      new_args.add(arg);
 			 else
@@ -179,13 +312,16 @@ public class TP3ConstPropReachDef extends Transform {
 			 for(Node n : defs)
 			 {
 			      Instr def = (Instr) cfg.instr(n);
+
+			      if(def == null)
+				   continue;
 			      
 			      LitInt def_cst = def.accept(new Const_InstrVisitor()); 
-
+			      
 			      if(def_cst == null)
 				   return null;
 			      else if(cst == null)
-				   def_cst = cst;
+				   cst = def_cst;
 			      else
 			      {
 				   if(!cst.equals(def_cst))
@@ -203,29 +339,29 @@ public class TP3ConstPropReachDef extends Transform {
 	  }
 
 	  
-     private class Const_InstrVisitor implements InstrVisitor<LitInt>
-     {
-	  public LitInt visit(Assign a)
-	       {
-		    return a.operand.accept(new Const_OperandVisitor());
-	       }
-	  public LitInt visit(BuiltIn bi)
-	       {
-		    return null;
-	       }
-	  public LitInt visit(Call c)
-	       {
-		    return null;
-	       }
-	  public LitInt visit(MemRead mr)
-	       {
-		    return null;
-	       }
-	  public LitInt visit(MemWrite mw)
-	       {
-		    return null;
-	       }
-     }
+	  private class Const_InstrVisitor implements InstrVisitor<LitInt>
+	  {
+	       public LitInt visit(Assign a)
+		    {
+			 return a.operand.accept(new Const_OperandVisitor());
+		    }
+	       public LitInt visit(BuiltIn bi)
+		    {
+			 return null;
+		    }
+	       public LitInt visit(Call c)
+		    {
+			 return null;
+		    }
+	       public LitInt visit(MemRead mr)
+		    {
+			 return null;
+		    }
+	       public LitInt visit(MemWrite mw)
+		    {
+			 return null;
+		    }
+	  }
 
      }
      
