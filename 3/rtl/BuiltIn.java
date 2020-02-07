@@ -19,7 +19,7 @@ import java.util.HashSet;
  * 	<dt>And</dt><dd>Stores in the target Ident the result of the logical AND of the two arguments. A negative value represents false, any other value represents true.</dd>
  * 	<dt>Lt</dt><dd>Stores 1 (meaning true) in the target Ident if the first argument is less than the second one. Stores 0 otherwise.</dd>
  * </dl>
- * 
+ *
  * @see InstrVisitor
  * @see Instr
  */
@@ -32,8 +32,8 @@ public class BuiltIn implements Instr {
 	public final static String MUL = "Mul";
 	public final static String AND = "And";
 	public final static String LT = "Lt";
-	
-	private static Set<String> operatorNames = 
+
+	private static Set<String> operatorNames =
 			new HashSet<String>(Arrays.asList(new String[] { ALLOC, PRINT, ADD, SUB, MUL, AND, LT }));
 	/** The name of the operator represented by this built-in instruction **/
 	public final String operator; // must belongs to operatorNames
@@ -59,7 +59,7 @@ public class BuiltIn implements Instr {
 		if (target!=null) res = target.toString()+" = ";
 		res = res+operator+"("+Call.stringOfList(args)+")";
 		return res;
-	}	
+	}
 
 	public <A> A accept(InstrVisitor<A> v) {
 		return v.visit(this);
