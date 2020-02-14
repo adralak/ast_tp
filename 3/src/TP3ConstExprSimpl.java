@@ -3,6 +3,7 @@ import rtl.graph.RtlCFG;
 import java.util.List;
 import java.util.ArrayList;
 import java.lang.Integer;
+import rtl.graph.DiGraph.Node;
 /**
  * Simplification d'expressions.
  *
@@ -69,10 +70,13 @@ public class TP3ConstExprSimpl extends Transform {
 	public TransformInstrResult transform(BuiltIn instr) {
 		TP3InstrVisitor iv = new TP3InstrVisitor();
 		Instr new_instr = instr.accept(iv);
-		hasChanged = !(new_instr.equals(instr));
+		Node n = cfg.node(instr);
+		hasChanged = hasChanged || !(new_instr.equals(instr));
 
-		cfg.updateInstr(cfg.node(instr), new_instr);
-		return new TransformInstrResult(instr);
+		if(new_instr != null)
+		     cfg.updateInstr(n, new_instr);
+		
+		return new TransformInstrResult(new_instr);
 	}
 
 
@@ -97,7 +101,7 @@ public class TP3ConstExprSimpl extends Transform {
 			List<Integer> intl = new ArrayList<Integer>();
 			for (Operand opi : args) {
 				TP3OpVisitor ov = new TP3OpVisitor();
-				LitInt i = opi. accept(ov);
+				LitInt i = opi.accept(ov);
 				if (i == null) {return bi;}
 				intl.add((Integer) i.getVal());
 			}
@@ -136,7 +140,8 @@ public class TP3ConstExprSimpl extends Transform {
 			if (new_val == null) {
 				return bi;
 			}
-			Assign a = new Assign(_ident, new LitInt(new_val));
+			System.out.println(new_val);
+			Assign a = new Assign(_ident, new LitInt(new_val.intValue()));
 			return a;
 		}
 		public Instr visit(Call c) {
