@@ -1,3 +1,7 @@
+/*
+Authors: Paul Bastide and Yan Garito
+*/
+
 import java.util.Map;
 import java.util.Set;
 import java.util.List;

@@ -1,3 +1,7 @@
+/*
+Authors: Paul Bastide and Yan Garito
+*/
+
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;

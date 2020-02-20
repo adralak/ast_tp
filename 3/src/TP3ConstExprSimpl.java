@@ -1,3 +1,7 @@
+/*
+Authors: Paul Bastide and Yan Garito
+*/
+
 import rtl.*;
 import rtl.graph.RtlCFG;
 import java.util.List;
