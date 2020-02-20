@@ -72,10 +72,9 @@ public class TP3ConstExprSimpl extends Transform {
 		Instr new_instr = instr.accept(iv);
 		Node n = cfg.node(instr);
 		hasChanged = hasChanged || !(new_instr.equals(instr));
-
-		if(new_instr != null)
-		     cfg.updateInstr(n, new_instr);
-		
+		if (new_instr != null) {
+			cfg.updateInstr(n, new_instr);
+		}
 		return new TransformInstrResult(new_instr);
 	}
 
@@ -93,12 +92,16 @@ public class TP3ConstExprSimpl extends Transform {
 		public Instr visit(Assign a) {
 			return a;
 		}
+
 		public Instr visit(BuiltIn bi) {
 			Integer new_val = null;
 			Ident _ident = bi.target;
 			String _op = bi.operator;
 			List<Operand> args = bi.args;
 			List<Integer> intl = new ArrayList<Integer>();
+			if (args.size() == 1) {
+				return bi;
+			}
 			for (Operand opi : args) {
 				TP3OpVisitor ov = new TP3OpVisitor();
 				LitInt i = opi.accept(ov);
@@ -106,50 +109,47 @@ public class TP3ConstExprSimpl extends Transform {
 				intl.add((Integer) i.getVal());
 			}
 
-			if (new_val == null) {
-				if (_op.equals("Add")) {
-					new_val =  (intl.get(0) + intl.get(1));
-				}
-				else if (_op.equals("Sub")) {
-					new_val =  (intl.get(0) - intl.get(1));
-				}
-				else if (_op.equals("Mul")) {
-					new_val =  (intl.get(0) * intl.get(1));
-				}
-				else if (_op.equals("And")) {
-					if (intl.get(0).equals(1) && intl.get(0).equals(1)) {
-						new_val =  1;
-					}
-					else {
-						new_val =  0;
-					}
-				}
-				else if (_op.equals("Lt")) {
-					if (intl.get(0) <= intl.get(1)) {
-						new_val =  1;
-					}
-					else {
-						new_val =  0;
-					}
+			if (_op.equals("Add")) {
+				new_val =  (intl.get(0) + intl.get(1));
+			}
+			else if (_op.equals("Sub")) {
+				new_val =  (intl.get(0) - intl.get(1));
+			}
+			else if (_op.equals("Mul")) {
+				new_val =  (intl.get(0) * intl.get(1));
+			}
+			else if (_op.equals("And")) {
+				if (intl.get(0).equals(1) && intl.get(0).equals(1)) {
+					new_val =  1;
 				}
 				else {
-					new_val = intl.get(0);
+					new_val =  0;
 				}
 			}
-
-			if (new_val == null) {
-				return bi;
+			else if (_op.equals("Lt")) {
+				if (intl.get(0) <= intl.get(1)) {
+					new_val =  1;
+				}
+				else {
+					new_val =  0;
+				}
 			}
-			System.out.println(new_val);
+			else {
+				new_val = intl.get(0);
+			}
+
 			Assign a = new Assign(_ident, new LitInt(new_val.intValue()));
 			return a;
 		}
+
 		public Instr visit(Call c) {
 			return c;
 		}
+
 		public Instr visit(MemRead mr) {
 			return mr;
 		}
+
 		public Instr visit(MemWrite mw) {
 			return mw;
 		}
