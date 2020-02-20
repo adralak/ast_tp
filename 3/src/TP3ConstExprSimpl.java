@@ -142,14 +142,6 @@ public class TP3ConstExprSimpl extends Transform {
 				new_val = intl.get(0);
 			}
 
-			if(_ident == null)
-			{
-			     List<Operand> new_args = new ArrayList<Operand>();
-			     new_args.add(new LitInt(new_val));
-			     BuiltIn new_bi = new BuiltIn(_op, null, new_args);
-			     return new_bi;
-			}
-
 			Assign a = new Assign(_ident, new LitInt(new_val.intValue()));
 			return a;
 		}
