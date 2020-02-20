@@ -38,7 +38,7 @@ class MyTest {
 					DataFlowDebug debug = new DataFlowDebug(f, g);
 					
 					System.out.println("Reachable Definitions Analysis");
-					TP3ReachableDef reachDef = new TP3ReachableDef(g, debug); // Initialisation de l'analyse 
+					TP3ReachableDef reachDef = new TP3ReachableDef(g, debug); // Initialisation de l'analyse
 					debug.show(System.out); // Affichage de l'analyse 
 				}
 				

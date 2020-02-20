@@ -51,12 +51,12 @@ public class TP3DeadDefElim extends Transform {
 	       Map<Ident, Set<Node>> uses = defUse.get(n);
 	       Ident id = a.ident;
 	       Set<Node> usage = uses.get(id);
-
-	       if(usage.isEmpty())
-	       {
-		    cfg.updateInstr(n, (Instr) null);
+	       
+	       if(usage == null)
 		    return new TransformInstrResult(null);
-	       }
+	       
+	       if(usage.isEmpty())
+		    return new TransformInstrResult(null);
 	       else
 		    return new TransformInstrResult(a);
 	  }
@@ -71,11 +71,11 @@ public class TP3DeadDefElim extends Transform {
 	       Map<Ident, Set<Node>> uses = defUse.get(n);
 	       Set<Node> usage = uses.get(id);
 
-	       if(usage.isEmpty())
-	       {
-		    cfg.updateInstr(n, (Instr) null);
+	       if(usage == null)
 		    return new TransformInstrResult(null);
-	       }
+	       
+	       if(usage.isEmpty())
+		    return new TransformInstrResult(null);
 	       else
 		    return new TransformInstrResult(bi);
 	  }
@@ -90,16 +90,16 @@ public class TP3DeadDefElim extends Transform {
 	       Map<Ident, Set<Node>> uses = defUse.get(n);
 	       Set<Node> usage = uses.get(id);
 
-	       if(usage.isEmpty())
-	       {
-		    cfg.updateInstr(n, (Instr) null);
+	       if(usage == null)
 		    return new TransformInstrResult(null);
-	       }
+	       
+	       if(usage.isEmpty())
+		    return new TransformInstrResult(null);
 	       else
 		    return new TransformInstrResult(c);
 	  }
 
-          public TransformInstrResult transform(MemRead mr)
+     public TransformInstrResult transform(MemRead mr)
 	  {
 	       Ident id = mr.ident;
 	       if(id == null)
@@ -109,15 +109,12 @@ public class TP3DeadDefElim extends Transform {
 	       Map<Ident, Set<Node>> uses = defUse.get(n);
 	       Set<Node> usage = uses.get(id);
 
-	       if(usage.isEmpty())
-	       {
-		    cfg.updateInstr(n, (Instr) null);
+	       if(usage == null)
 		    return new TransformInstrResult(null);
-	       }
+	       
+	       if(usage.isEmpty())
+		    return new TransformInstrResult(null);
 	       else
 		    return new TransformInstrResult(mr);
-	  }
-
-     
+	  }    
 }
-

@@ -201,14 +201,7 @@ public class TP3ReachableDef {
 	public boolean isFixedPoint() {
 		for(Node n : g.nodes())
 		{
-			 if(ordIn.get(n).equals(rdIn.get(n)) && ordOut.get(n).equals(rdOut.get(n)))
-			  continue;
-			 else
-				System.out.println("Inold : " + ordIn.get(n));
-				System.out.println("Innew : " + rdIn.get(n));
-				System.out.println("Outold : " + ordOut.get(n));
-				System.out.println("Outnew : " + rdOut.get(n));
-
+		     if(!ordIn.get(n).equals(rdIn.get(n)) || !ordOut.get(n).equals(rdOut.get(n)))
 			  return false;
 		}
 		return true;
