@@ -255,13 +255,15 @@ public class TP3ReachableDef {
 			for(RDPair p: this.rdIn.get(n)) {
 				Node defnode = p.getnode();
 				Ident defid = p.getid();
-				if (defUse.get(defnode).containsKey(defid)) {
-					defUse.get(defnode).get(defid).add(n);
-				}
-				else {
-					Set<Node> temp = new HashSet<Node>();
-					temp.add(n);
-					defUse.get(defnode).put(defid,temp);
+				if (g.use(n).contains(defid)) {
+					if (defUse.get(defnode).containsKey(defid)) {
+						defUse.get(defnode).get(defid).add(n);
+					}
+					else {
+						Set<Node> temp = new HashSet<Node>();
+						temp.add(n);
+						defUse.get(defnode).put(defid,temp);
+					}
 				}
 			}
 		}
