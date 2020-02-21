@@ -157,7 +157,12 @@ public class TP4AvailableExpressions {
 	}
 
 	private boolean isFixedPoint() {
-		return true; //TODO
+	     for(Node n : cfg.nodes())
+	     {
+		  if(!oaeIn.get(n).equals(aeIn.get(n)) || !oaeOut.get(n).equals(oaeOut.get(n)))
+		       return false;
+	     }
+	     return true;
 	}	
 	
 }
