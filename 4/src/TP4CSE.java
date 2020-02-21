@@ -13,30 +13,31 @@ import rtl.graph.RtlCFG;
 public class TP4CSE extends Transform {
 
 	
-	public static void transform(Program p) {
-		for (Function f : p.functions) 
-			new TP4CSE(f).transform(f);
-	}
+     public static void transform(Program p) {
+	  for (Function f : p.functions) 
+	       new TP4CSE(f).transform(f);
+     }
 
-	private FlowGraph cfg;
-	private FreshIdentGenerator genIdent;
-	//TODO
+     private FlowGraph cfg;
+     private FreshIdentGenerator genIdent;
+     private TP4AvailableExpressions exprs;
 
-	TP4CSE(Function f) {
-		cfg = new RtlCFG(f);
-		genIdent = new FreshIdentGenerator("cse", f);
-		// vous pourrez ainsi obtenir un identifiant "frais" avec
-		// Ident tmp = genIdent.fresh();
+     TP4CSE(Function f) {
+	  cfg = new RtlCFG(f);
+	  genIdent = new FreshIdentGenerator("cse", f);
+	  // vous pourrez ainsi obtenir un identifiant "frais" avec
+	  // Ident tmp = genIdent.fresh();
+	  exprs = new TP4AvailableExpressions(f, cfg);
 
-		// TODO
-	}	
+     }	
 
-	public TransformInstrResult transform(BuiltIn bi) {
-		return new TransformInstrResult(bi); //TODO
-	}
+     public TransformInstrResult transform(BuiltIn bi) {
+	  
+	  return new TransformInstrResult(bi); //TODO
+     }
 
-	public TransformInstrResult transform(MemRead mr) {		
-		return new TransformInstrResult(mr); //TODO
-	}
+     public TransformInstrResult transform(MemRead mr) {		
+	  return new TransformInstrResult(mr); //TODO
+     }
 
 }
