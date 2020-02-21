@@ -101,7 +101,7 @@ public class TP4AvailableExpressions {
 	 */
 	private Map<Node,Set<Expr>> aeIn = new Hashtable<>();
 
-	private Map<Node,Set<Expr>> oaeIn = new Hastable<>();
+	private Map<Node,Set<Expr>> oaeIn = new Hashtable<>();
 
 	/**
 	 * L'ensemble des expression disponibles en sortie de chaque noeud.
@@ -144,14 +144,16 @@ public class TP4AvailableExpressions {
 		//dans les TP précédents
 		// On ajoute tout les expressions calculées dans le programme
 		for (Node n : cfg.nodes()) {
-			Instr instr = cfg.instr(n);
-			if (Instr != null) {
-				TP4InstrVisitor iv = new TP4InstrVisitor();
-				Expr tp_expr = instr.accept(iv);
-				if (tp_expr != null) {
-					init.add(tp_expr);
+			Object ob = cfg.instr(n);
+			if (ob instanceof Instr) {
+				Instr instr = (Instr) ob;
+					TP4InstrVisitor iv = new TP4InstrVisitor();
+					Expr tp_expr = instr.accept(iv);
+					if (tp_expr != null) {
+						init.add(tp_expr);
 				}
 			}
+
 		}
 
 		for (Node n : cfg.nodes()) {
@@ -172,7 +174,7 @@ public class TP4AvailableExpressions {
 			oaeIn.put(n, aeIn.get(n));
 			oaeOut.put(n, aeOut.get(n));
 
-			Set<Expr> tempOut = new HashSet(oaeIn.get(n));
+			Set<Expr> tempOut = new HashSet<Expr>(oaeIn.get(n));
 			for (Ident id : cfg.def(n)) {
 				for (Expr e : oaeIn.get(n)) {
 					if (e.containsIdent(id)) {
@@ -181,14 +183,16 @@ public class TP4AvailableExpressions {
 				}
 			}
 
-			Instr instr = cfg.instr(n);
-			TP4InstrVisitor iv = new TP4InstrVisitor();
-			Expr tp_expr = instr.accept(iv);
-			if (tp_expr != null) {
-				tempOut.add(tp_expr);
+			Object ob = cfg.instr(n);
+			if (ob instanceof Instr) {
+				Instr instr = (Instr) ob;
+				TP4InstrVisitor iv = new TP4InstrVisitor();
+				Expr tp_expr = instr.accept(iv);
+				if (tp_expr != null) {
+					tempOut.add(tp_expr);
+				}
 			}
-
-			Set<Expr> tempIn;
+			Set<Expr> tempIn = new HashSet<Expr>();
 			for (Node n_n : n.succ()) {
 				tempIn.addAll(oaeOut.get(n));
 			}
@@ -202,30 +206,33 @@ public class TP4AvailableExpressions {
 	}
 
 	private boolean isFixedPoint() {
-		return true; //TODO
+	     for(Node n : cfg.nodes())
+	     {
+		  if(!oaeIn.get(n).equals(aeIn.get(n)) || !oaeOut.get(n).equals(aeOut.get(n)))
+		       return false;
+	     }
+	     return true;
 	}
 
 	private	class TP4InstrVisitor implements InstrVisitor<Expr> {
-		public Instr visit(Assign a) {
+		public Expr visit(Assign a) {
 			return null;
 		}
 
-		public Instr visit(BuiltIn bi) {
-			return BuiltInExpr(bi.operator,bi.args);
+		public Expr visit(BuiltIn bi) {
+			return (new BuiltInExpr(bi.operator,bi.args));
 		}
 
-		public Instr visit(Call c) {
+		public Expr visit(Call c) {
 			return null;
 		}
 
-		public Instr visit(MemRead mr) {
+		public Expr visit(MemRead mr) {
 			return null;
 		}
 
-		public Instr visit(MemWrite mw) {
+		public Expr visit(MemWrite mw) {
 			return null;
 		}
 	}
-
-
 }
