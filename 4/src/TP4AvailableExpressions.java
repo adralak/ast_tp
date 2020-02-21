@@ -192,9 +192,12 @@ public class TP4AvailableExpressions {
 					tempOut.add(tp_expr);
 				}
 			}
-			Set<Expr> tempIn = new HashSet<Expr>();
+			Set<Expr> tempIn = new HashSet<Expr>(oaeIn.get(n));
+			if (n.pred().size() == 0) {
+				tempIn = new HashSet<Expr>();
+			}
 			for (Node n_n : n.pred()) {
-				tempIn.addAll(oaeOut.get(n));
+				tempIn.retainAll(aeOut.get(n_n));
 			}
 
 			aeIn.put(n, tempIn);
