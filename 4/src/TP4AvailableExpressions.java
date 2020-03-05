@@ -223,7 +223,11 @@ public class TP4AvailableExpressions {
 		}
 
 		public Expr visit(BuiltIn bi) {
-			return (new BuiltInExpr(bi.operator,bi.args));
+			BuiltInExpr bie = new BuiltInExpr(bi.operator,bi.args);
+			if (bie.operator.equals("Alloc") || bie.operator.equals("PrintInt")) {
+				return null;
+			}
+			return bie;
 		}
 
 		public Expr visit(Call c) {
