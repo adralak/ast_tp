@@ -276,6 +276,11 @@ public class TP4AvailableExpressions {
 
      private Set<Node> explorer(Node n, Expr e)
 	  {
+	  /**
+	  * Fonction recursive qui calcule les noeuds qui ont définis une expression else {
+	  * utilisé à la Node n
+	  }
+	  */
 	       Object o = cfg.instr(n);
 	       if(o instanceof BuiltIn)
 	       {
@@ -289,26 +294,34 @@ public class TP4AvailableExpressions {
 			 return singleton;
 		    }
 	       }
-	       else
+	       else if (o instanceof MemRead){
+			 MemRead mr = (MemRead) o;
+			 ReadExpr re = new ReadExpr(re.MemRef);
+			 if(e.equals(re)) {
+				 Set<Node> singleton = new HashSet<Node>();
+				 singleton.add(n);
+				 return singleton;
+			 }
+		   }
+		   else {
 		    return null;
-	       
+		   }
 	       Set<Node> union = new HashSet<Node>();
 	       for(Node p : n.pred())
 	       {
 		    Set<Node> prev_expl = explorer(p, e);
-		    
+
 		    if(prev_expl != null)
 			 union.addAll(prev_expl);
 	       }
-
 	       return union;
 	  }
-     
+
      public Set<Node> useDef(Node n)
 	  {
 	       return useDef_expr.get(n);
 	  }
-     
+
 	private	class TP4InstrVisitor implements InstrVisitor<Expr> {
 		/**
 		* retourne l'expression pour les builtIn et les memRead
