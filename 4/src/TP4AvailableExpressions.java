@@ -161,7 +161,9 @@ public class TP4AvailableExpressions {
 	}
 
 	private void build() {
-		// On ajoute TOUTES les expressions calculées dans le programme
+		/** On ajoute TOUTES les expressions calculées dans le programme
+		* puis on execute onePass jusqu'à atteindre un point fixe
+		*/
 		Set<Expr> init = new HashSet<>();
 		for (Node n : cfg.nodes()) {
 			Object ob = cfg.instr(n);
@@ -191,9 +193,10 @@ public class TP4AvailableExpressions {
 	private void onePass() {
 		for (Node n : cfg.nodes()) {
 			/**
-			* On sauvegarde d'abord les ancienne valeur de aeIn et oaeOut
+			* On sauvegarde d'abord les anciennes valeurs de aeIn et oaeOut
 			* la recherche de point fixe se fait entierement avec les ANCIENNES
-			* valeur de aeIn et aeOut.
+			* valeurs de aeIn et aeOut (on pourrait l'accelerer en utilisant
+			* les valeurs courantes ).
 			*/
 			oaeIn.put(n, aeIn.get(n));
 			oaeOut.put(n, aeOut.get(n));
@@ -201,18 +204,27 @@ public class TP4AvailableExpressions {
 			Set<Expr> tempOut = new HashSet<Expr>(oaeIn.get(n));
 
 			/**
-			* on retire les expressions utilisant des variables redefinis dans le noeud
+			* on retire dans Out les expressions utilisant des variables redefinis dans le noeud
 			*/
 			for (Ident id : cfg.def(n)) {
 				for (Expr e : oaeIn.get(n)) {
 					if (e.containsIdent(id)) {
 						tempOut.remove(e);
 					}
+					if (e instanceof ReadExpr) {
+						Set<Expr> to_remove_out = new HashSet<Expr>();
+						for (Expr ee : tempOut) {
+							if (ee instanceof ReadExpr) {
+								to_remove_out.add(ee);
+							}
+						}
+						tempOut.removeAll(to_remove_out);
+					}
 				}
 			}
 
 			/**
-			*
+			* On ajoute dans Out l'expr calculés durant ce noeud
 			*/
 			Object ob = cfg.instr(n);
 			if (ob instanceof Instr) {
@@ -223,7 +235,11 @@ public class TP4AvailableExpressions {
 					tempOut.add(tp_expr);
 				}
 			}
+
 			Set<Expr> tempIn = new HashSet<Expr>(oaeIn.get(n));
+			/**
+			* On definis In comme l'intersection des Out précédent
+			*/
 			if (n.pred().size() == 0) {
 				tempIn = new HashSet<Expr>();
 			}
@@ -249,6 +265,10 @@ public class TP4AvailableExpressions {
 	}
 
      private void make_useDef()
+	 /**
+	 * Construit la Hashmap useDef_expr qui lis un noeud qui utilise une expression
+	   à tous les noeuds où cette expression est déja calculée précédement dans le graphe
+	 */
 	  {
 	       for(Node n : cfg.nodes())
 	       {
@@ -332,6 +352,9 @@ public class TP4AvailableExpressions {
 		}
 
 		public Expr visit(BuiltIn bi) {
+			/**
+			* dans le cas de Alloc et PrintInt il n'y a pas d'expression calculée
+			*/
 			BuiltInExpr bie = new BuiltInExpr(bi.operator,bi.args);
 			if (bie.operator.equals("Alloc") || bie.operator.equals("PrintInt")) {
 				return null;
