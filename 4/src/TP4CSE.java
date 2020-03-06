@@ -28,10 +28,12 @@ public class TP4CSE extends Transform {
 	  // vous pourrez ainsi obtenir un identifiant "frais" avec
 	  // Ident tmp = genIdent.fresh();
 	  exprs = new TP4AvailableExpressions(f, cfg);
-
      }	
 
      public TransformInstrResult transform(BuiltIn bi) {
+	  TransformInstrResult new_instrs;
+	  Node n = cfg.node(bi);	  
+	  
 	  
 	  return new TransformInstrResult(bi); //TODO
      }

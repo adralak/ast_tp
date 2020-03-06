@@ -110,7 +110,7 @@ public class TP4AvailableExpressions {
 
 	private Map<Node,Set<Expr>> oaeOut = new Hashtable<>();
 
-
+     private Map<Node, Set<Node>> useDef_expr = new Hashtable<Node>();
 
 	/**
 	 * Permet d'afficher les itérations de l'algorithme de calcul de point fixe.
@@ -217,6 +217,67 @@ public class TP4AvailableExpressions {
 	     return true;
 	}
 
+     private void make_useDef()
+	  {
+	       for(Node n : cfg.nodes())
+	       {
+		    Object o = cfg.instr(n);
+		    if(o instanceof BuiltIn)
+		    {
+			 BuiltIn bi = (BuiltIn) o;
+			 BuiltInExpr bie = new BuiltInExpr(bi.operator, bi.args);
+
+			 if(!aein.contains(bie))
+			      continue;
+
+			 Set<Node> use = new HashSet<Node>();
+			 for(Node p : node.pred())
+			 {
+			      Set<Node> explored = explorer(p, e);
+			      if(explored != null)
+				   use.addAll(explored);
+			 }
+
+			 useDef_expr.put(n, use);
+		    }
+	       }
+	  }
+
+     private Set<Node> explorer(Node n, Expr e)
+	  {
+	       Object o = cfg.instr(n);
+	       if(o instanceof BuiltIn)
+	       {
+		    BuiltIn bi = (BuiltIn) o;
+		    BuiltInExpr bie = new BuiltInExpr(bi.operator, bi.args);
+
+		    if(e.equals(bie))
+		    {
+			 Set<Node> singleton = new HashSet<Node>();
+			 singleton.add(n);
+			 return singleton;
+		    }
+	       }
+	       else
+		    return null;
+	       
+	       Set<Node> union = new HashSet<Node>();
+	       for(Node p : n.pred())
+	       {
+		    Set<Node> prev_expl = explorer(p, e);
+		    
+		    if(prev_expl != null)
+			 union.addAll(prev_expl);
+	       }
+
+	       return union;
+	  }
+     
+     public Set<Node> useDef(Node n)
+	  {
+	       return useDef_expr.get(n);
+	  }
+     
 	private	class TP4InstrVisitor implements InstrVisitor<Expr> {
 		public Expr visit(Assign a) {
 			return null;
