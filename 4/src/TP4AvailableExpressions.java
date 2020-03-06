@@ -270,8 +270,8 @@ public class TP4AvailableExpressions {
 			 for(Node p : n.pred())
 			 {
 			      Set<Node> explored = explorer(p, bie);
-			      if(explored != null)
-				   use.addAll(explored);
+			      System.out.println(explored);
+			      use.addAll(explored);
 			 }
 
 			 useDef_expr.put(n, use);
@@ -284,6 +284,11 @@ public class TP4AvailableExpressions {
      private Set<Node> explorer(Node n, Expr e)
 	  {
 	       Object o = cfg.instr(n);
+	       Set<Node> union = new HashSet<Node>();
+
+	       if(n.equals(cfg.entry()))
+		    return union;
+	       
 	       if(o instanceof BuiltIn)
 	       {
 		    BuiltIn bi = (BuiltIn) o;
@@ -291,21 +296,16 @@ public class TP4AvailableExpressions {
 
 		    if(e.equals(bie))
 		    {
-			 Set<Node> singleton = new HashSet<Node>();
-			 singleton.add(n);
-			 return singleton;
+			 union.add(n);
+			 return union;
 		    }
 	       }
-	       else
-		    return null;
-	       
-	       Set<Node> union = new HashSet<Node>();
+
 	       for(Node p : n.pred())
 	       {
 		    Set<Node> prev_expl = explorer(p, e);
 		    
-		    if(prev_expl != null)
-			 union.addAll(prev_expl);
+		    union.addAll(prev_expl);
 	       }
 
 	       return union;
