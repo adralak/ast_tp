@@ -87,12 +87,34 @@ public class TP4AvailableExpressions {
 	 * Lecture en mémoire.
 	 */
 	private static class ReadExpr implements Expr {
-		//Il vous faudra déterminer les champs d'instance
-		//Il vous faudra determiner les méthodes qui nécessitent une redéfinition
-		//TODO
+		/**
+		* reference mémoire de l'expression
+		*/
+		public final MemRef memRef;
+
+		ReadExpr(MemRef m) {
+			this.memRef = m;
+		}
+
+		/**
+		* Comparaison logique de deux expressions
+		*/
+		@Override public boolean equals(Object o) {
+			if (!(o instanceof ReadExpr)) return false;
+			ReadExpr e = (ReadExpr) o;
+			return (memRef.offset == e.memRef.offset && memRef.ident.equals(e.memRef.ident));
+		}
+
+		@Override public int hashCode() {
+			return (memRef.hashCode());
+		}
+
+		@Override public String toString() {
+			return (memRef.toString());
+		}
 
 		public boolean containsIdent(Ident id) {
-			return false; //TODO
+			return (memRef.ident.equals(id));
 		}
 	}
 
@@ -139,10 +161,8 @@ public class TP4AvailableExpressions {
 	}
 
 	private void build() {
-		Set<Expr> init = new HashSet<>();//TODO
-		//Attention cette initialisation est plus complexe que
-		//dans les TP précédents
-		// On ajoute tout les expressions calculées dans le programme
+		// On ajoute TOUTES les expressions calculées dans le programme
+		Set<Expr> init = new HashSet<>();
 		for (Node n : cfg.nodes()) {
 			Object ob = cfg.instr(n);
 			if (ob instanceof Instr) {
@@ -155,7 +175,6 @@ public class TP4AvailableExpressions {
 			}
 
 		}
-
 		for (Node n : cfg.nodes()) {
 			aeIn.put(n, init);
 			aeOut.put(n, init);
@@ -171,10 +190,19 @@ public class TP4AvailableExpressions {
 
 	private void onePass() {
 		for (Node n : cfg.nodes()) {
+			/**
+			* On sauvegarde d'abord les ancienne valeur de aeIn et oaeOut
+			* la recherche de point fixe se fait entierement avec les ANCIENNES
+			* valeur de aeIn et aeOut.
+			*/
 			oaeIn.put(n, aeIn.get(n));
 			oaeOut.put(n, aeOut.get(n));
 
 			Set<Expr> tempOut = new HashSet<Expr>(oaeIn.get(n));
+
+			/**
+			* on retire les expressions utilisant des variables redefinis dans le noeud
+			*/
 			for (Ident id : cfg.def(n)) {
 				for (Expr e : oaeIn.get(n)) {
 					if (e.containsIdent(id)) {
@@ -183,6 +211,9 @@ public class TP4AvailableExpressions {
 				}
 			}
 
+			/**
+			*
+			*/
 			Object ob = cfg.instr(n);
 			if (ob instanceof Instr) {
 				Instr instr = (Instr) ob;
@@ -197,7 +228,7 @@ public class TP4AvailableExpressions {
 				tempIn = new HashSet<Expr>();
 			}
 			for (Node n_n : n.pred()) {
-				tempIn.retainAll(aeOut.get(n_n));
+				tempIn.retainAll(oaeOut.get(n_n));
 			}
 
 			aeIn.put(n, tempIn);
@@ -279,6 +310,10 @@ public class TP4AvailableExpressions {
 	  }
      
 	private	class TP4InstrVisitor implements InstrVisitor<Expr> {
+		/**
+		* retourne l'expression pour les builtIn et les memRead
+		*/
+
 		public Expr visit(Assign a) {
 			return null;
 		}
@@ -296,7 +331,8 @@ public class TP4AvailableExpressions {
 		}
 
 		public Expr visit(MemRead mr) {
-			return null;
+			ReadExpr re = new ReadExpr(mr.memRef);
+			return re;
 		}
 
 		public Expr visit(MemWrite mw) {
