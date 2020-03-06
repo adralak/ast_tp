@@ -132,7 +132,7 @@ public class TP4AvailableExpressions {
 
 	private Map<Node,Set<Expr>> oaeOut = new Hashtable<>();
 
-     private Map<Node, Set<Node>> useDef_expr = new Hashtable<Node>();
+     public Map<Node, Set<Node>> useDef_expr = new Hashtable<Node, Set<Node>>();
 
 	/**
 	 * Permet d'afficher les itérations de l'algorithme de calcul de point fixe.
@@ -188,6 +188,8 @@ public class TP4AvailableExpressions {
 		while (!isFixedPoint()) {
 			onePass();
 		}
+
+		make_useDef();
 	}
 
 	private void onePass() {
@@ -278,19 +280,24 @@ public class TP4AvailableExpressions {
 			 BuiltIn bi = (BuiltIn) o;
 			 BuiltInExpr bie = new BuiltInExpr(bi.operator, bi.args);
 
-			 if(!aein.contains(bie))
-			      continue;
-
-			 Set<Node> use = new HashSet<Node>();
-			 for(Node p : node.pred())
+			 if(!aeIn.get(n).contains(bie))
 			 {
-			      Set<Node> explored = explorer(p, e);
+			      useDef_expr.put(n, new HashSet<Node>());
+			      continue;
+			 }
+			 
+			 Set<Node> use = new HashSet<Node>();
+			 for(Node p : n.pred())
+			 {
+			      Set<Node> explored = explorer(p, bie);
 			      if(explored != null)
 				   use.addAll(explored);
 			 }
 
 			 useDef_expr.put(n, use);
 		    }
+		    else
+			 useDef_expr.put(n, new HashSet<Node>());
 	       }
 	  }
 
