@@ -40,6 +40,7 @@ public class TP4CSE extends Transform {
 	  for(Node n : cfg.nodes())
 	  {
 	       Set<Node> available_defs = exprs.useDef(n);
+
 	       if(!available_defs.isEmpty())
 	       {
 		    Ident tmp = genIdent.fresh();

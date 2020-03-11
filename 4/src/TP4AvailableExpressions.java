@@ -267,6 +267,9 @@ public class TP4AvailableExpressions {
 	  {
 	       for(Node n : cfg.nodes())
 	       {
+		    useDef_expr.put(n, new HashSet<Node>());
+		    useDef_mr.put(n, new HashSet<Node>());
+
 		    Object o = cfg.instr(n);
 		    if(o instanceof BuiltIn)
 		    {
@@ -285,6 +288,8 @@ public class TP4AvailableExpressions {
 			      Set<Node> explored = explorer(p, bie);
 			      use.addAll(explored);
 			 }
+
+			 useDef_expr.put(n, use);
 		    }
 		    else if(o instanceof MemRead)
 		    {
@@ -306,11 +311,7 @@ public class TP4AvailableExpressions {
 
 			 useDef_mr.put(n, use);
 		    }
-		    else
-		    {
-			 useDef_expr.put(n, new HashSet<Node>());
-			 useDef_mr.put(n, new HashSet<Node>());
-		    }
+
 	       }
 	  }
 
@@ -377,9 +378,9 @@ public class TP4AvailableExpressions {
 
 	       public Set<Node> useDef(Node n)
 	       {
-		    if(useDef_expr.containsKey(n))
+		    if(cfg.instr(n) instanceof BuiltIn)
 			 return useDef_expr.get(n);
-		    else
+		    else 
 			 return useDef_mr.get(n);
 	       }
 
