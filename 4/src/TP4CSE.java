@@ -34,15 +34,12 @@ public class TP4CSE extends Transform {
 	  this.used_temps = new Hashtable<Node, Ident>();
 	  this.temps_to_make = new Hashtable<Node, Set<Ident>>();
 
-	  System.out.println(exprs.useDef_expr);
-	  
 	  for(Node n : cfg.nodes())
 	       temps_to_make.put(n, new HashSet<Ident>());
 	  
 	  for(Node n : cfg.nodes())
 	  {
 	       Set<Node> available_defs = exprs.useDef(n);
-
 	       if(!available_defs.isEmpty())
 	       {
 		    Ident tmp = genIdent.fresh();
@@ -52,13 +49,9 @@ public class TP4CSE extends Transform {
 			 temps_to_make.get(ancestor).add(tmp);
 	       }
 	  }
-
-	  System.out.println(used_temps);
-	  System.out.println(temps_to_make);
      }	
      
      public TransformInstrResult transform(BuiltIn bi) {
-	  TransformInstrResult new_instrs;
 	  Instr new_instr;
 	  Node n = cfg.node(bi);	  
 
@@ -70,7 +63,7 @@ public class TP4CSE extends Transform {
 	  else
 	       new_instr = bi;
 
-	  new_instrs = new TransformInstrResult(new_instr);
+	  TransformInstrResult new_instrs = new TransformInstrResult(new_instr);
 
 	  for(Ident id : temps_to_make.get(n))
 	       new_instrs.addAfter.add(new Assign(id, bi.target));
@@ -78,8 +71,25 @@ public class TP4CSE extends Transform {
 	  return new_instrs;
      }
 
-     public TransformInstrResult transform(MemRead mr) {		
-	  return new TransformInstrResult(mr); //TODO
+     public TransformInstrResult transform(MemRead mr) {
+	  Instr new_instr;
+	  Node n = cfg.node(mr);	  
+
+	  if(used_temps.containsKey(n))
+	  {
+	       Ident id = used_temps.get(n);
+	       new_instr = new Assign(mr.ident, id);
+	  }
+	  else
+	       new_instr = mr;
+
+	  TransformInstrResult new_instrs = new TransformInstrResult(new_instr);
+
+	  for(Ident id : temps_to_make.get(n))
+	       new_instrs.addAfter.add(new Assign(id, mr.ident));
+
+	  return new_instrs;
+
      }
 
 }
