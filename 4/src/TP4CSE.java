@@ -1,3 +1,7 @@
+/**
+@authors Paul Bastide et Yan Garito
+ */
+
 import rtl.*;
 import rtl.Transform.TransformInstrResult;
 
