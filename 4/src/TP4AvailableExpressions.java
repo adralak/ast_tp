@@ -263,25 +263,28 @@ public class TP4AvailableExpressions {
 	  return true;
      }
 
+     // Makes the two "useDef" maps which link uses to definitions
      private void make_useDef()
 	  {
 	       for(Node n : cfg.nodes())
 	       {
+		    // First, put empty sets inside
 		    useDef_expr.put(n, new HashSet<Node>());
 		    useDef_mr.put(n, new HashSet<Node>());
 
 		    Object o = cfg.instr(n);
+		    // If it's a BuiltIn instruction
 		    if(o instanceof BuiltIn)
 		    {
 			 BuiltIn bi = (BuiltIn) o;
 			 BuiltInExpr bie = new BuiltInExpr(bi.operator, bi.args);
 
+			 // If the expression it uses is unavailable, we skip it
 			 if(!aeIn.get(n).contains(bie))
-			 {
-			      useDef_expr.put(n, new HashSet<Node>());
 			      continue;
-			 }
 
+			 /* Otherwise, we recursively explore the graph to find its 
+			    points of definitions */
 			 Set<Node> use = new HashSet<Node>();
 			 for(Node p : n.pred())
 			 {
@@ -291,16 +294,14 @@ public class TP4AvailableExpressions {
 
 			 useDef_expr.put(n, use);
 		    }
+		    // Same thing for MemReads
 		    else if(o instanceof MemRead)
 		    {
 			 MemRead mr = (MemRead) o;
 			 ReadExpr mre = new ReadExpr(mr.memRef);
 
 			 if(!aeIn.get(n).contains(mre))
-			 {
-			      useDef_mr.put(n, new HashSet<Node>());
 			      continue;
-			 }
 
 			 Set<Node> use = new HashSet<Node>();
 			 for(Node p : n.pred())
@@ -315,19 +316,23 @@ public class TP4AvailableExpressions {
 	       }
 	  }
 
+     // Explores the graph recursively, looking for expression e
 	       private Set<Node> explorer(Node n, BuiltInExpr e)
 	       {
 		    Object o = cfg.instr(n);
 		    Set<Node> union = new HashSet<Node>();
 
+		    // This is for safety's sake, but we should never get here
 		    if(n.equals(cfg.entry()))
 			 return union;
 
+		    // If it's a BuiltIn
 		    if(o instanceof BuiltIn)
 		    {
 			 BuiltIn bi = (BuiltIn) o;
 			 BuiltInExpr bie = new BuiltInExpr(bi.operator, bi.args);
 
+			 // And it defines the expression we've been looking for, we return it
 			 if(e.equals(bie))
 			 {
 			      union.add(n);
@@ -335,6 +340,7 @@ public class TP4AvailableExpressions {
 			 }
 		    }
 
+		    // Otherwise, explore the predecessors and merge their sets
 		    for(Node p : n.pred())
 		    {
 			 Set<Node> prev_expl = explorer(p, e);
@@ -345,6 +351,7 @@ public class TP4AvailableExpressions {
 		    return union;
 	       }
 
+     // Same for MemReads
 	       private Set<Node> explorer(Node n, ReadExpr e)
 	       {
 		    Object o = cfg.instr(n);
@@ -375,7 +382,7 @@ public class TP4AvailableExpressions {
 		    return union;
 	       }
 
-
+     // Return the correct useDef set
 	       public Set<Node> useDef(Node n)
 	       {
 		    if(cfg.instr(n) instanceof BuiltIn)

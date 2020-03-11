@@ -41,11 +41,14 @@ public class TP4CSE extends Transform {
 	  {
 	       Set<Node> available_defs = exprs.useDef(n);
 
+	       // If the expression is available
 	       if(!available_defs.isEmpty())
 	       {
+		    // We'll have to make a new tmp
 		    Ident tmp = genIdent.fresh();
 		    used_temps.put(n, tmp);
-			 
+
+		    // And the ancestors will have to define it
 		    for(Node ancestor : available_defs)
 			 temps_to_make.get(ancestor).add(tmp);
 	       }
@@ -56,22 +59,26 @@ public class TP4CSE extends Transform {
 	  Instr new_instr;
 	  Node n = cfg.node(bi);	  
 
+	  // If the expression here is already defined, we can make the instruction simpler
 	  if(used_temps.containsKey(n))
 	  {
 	       Ident id = used_temps.get(n);
 	       new_instr = new Assign(bi.target, id);
 	  }
+	  // Otherwise, it stays the same
 	  else
 	       new_instr = bi;
 
 	  TransformInstrResult new_instrs = new TransformInstrResult(new_instr);
 
+	  // Then we add the tmps we have to make for later use
 	  for(Ident id : temps_to_make.get(n))
 	       new_instrs.addAfter.add(new Assign(id, bi.target));
 
 	  return new_instrs;
      }
 
+     // Same for MemRead
      public TransformInstrResult transform(MemRead mr) {
 	  Instr new_instr;
 	  Node n = cfg.node(mr);	  
