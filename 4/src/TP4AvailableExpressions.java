@@ -1,3 +1,7 @@
+/**
+@authors Paul Bastide et Yan Garito
+ */
+
 import rtl.*;
 import java.util.HashSet;
 import java.util.Hashtable;
