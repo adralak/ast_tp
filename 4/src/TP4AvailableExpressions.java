@@ -193,101 +193,6 @@ public class TP4AvailableExpressions {
      }
 
      private void onePass() {
-         for (Node n : cfg.nodes()) {
-             /**
-             * On sauvegarde d'abord les anciennes valeurs de aeIn et oaeOut
-             * la recherche de point fixe se fait entierement avec les ANCIENNES
-             * valeurs de aeIn et aeOut (on pourrait l'accelerer en utilisant
-             * les valeurs courantes ).
-             */
-             oaeIn.put(n, aeIn.get(n));
-             oaeOut.put(n, aeOut.get(n));
-
-             Set<Expr> tempOut = new HashSet<Expr>(oaeIn.get(n));
-
-             /**
-             * on retire dans Out les expressions utilisant des variables redefinis dans le noeud
-             */
-             for (Ident id : cfg.def(n)) {
-                 for (Expr e : oaeIn.get(n)) {
-                     if (e.containsIdent(id)) {
-                         tempOut.remove(e);
-                     }
-                     if (e instanceof ReadExpr) {
-                         Set<Expr> to_remove_out = new HashSet<Expr>();
-                         for (Expr ee : tempOut) {
-                             if (ee instanceof ReadExpr) {
-                                 to_remove_out.add(ee);
-                             }
-                         }
-                         tempOut.removeAll(to_remove_out);
-                 private void onePass() {
-         for (Node n : cfg.nodes()) {
-             /**
-             * On sauvegarde d'abord les anciennes valeurs de aeIn et oaeOut
-             * la recherche de point fixe se fait entierement avec les ANCIENNES
-             * valeurs de aeIn et aeOut (on pourrait l'accelerer en utilisant
-             * les valeurs courantes ).
-             */
-             oaeIn.put(n, aeIn.get(n));
-             oaeOut.put(n, aeOut.get(n));
-
-             Set<Expr> tempOut = new HashSet<Expr>(oaeIn.get(n));
-
-             /**
-             * on retire dans Out les expressions utilisant des variables redefinis dans le noeud
-             */
-             for (Ident id : cfg.def(n)) {
-                 for (Expr e : oaeIn.get(n)) {
-                     if (e.containsIdent(id)) {
-                         tempOut.remove(e);
-                     }
-                     if (e instanceof ReadExpr) {
-                         Set<Expr> to_remove_out = new HashSet<Expr>();
-                         for (Expr ee : tempOut) {
-                             if (ee instanceof ReadExpr) {
-                                 to_remove_out.add(ee);
-                             }
-                         }
-                         tempOut.removeAll(to_remove_out);
-                     }
-                 }
-             }
-
-             /**
-             * On ajoute dans Out l'expr calculés durant ce noeud
-             */
-             Object ob = cfg.instr(n);
-             if (ob instanceof Instr) {
-                 Instr instr = (Instr) ob;
-                 TP4InstrVisitor iv = new TP4InstrVisitor();
-                 Expr tp_expr = instr.accept(iv);
-                 if (tp_expr != null) {
-                     tempOut.add(tp_expr);
-                 }
-             }
-
-             Set<Expr> tempIn = new HashSet<Expr>(oaeIn.get(n));
-             /**
-             * On definis In comme l'intersection des Out précédent
-             */
-             if (n.pred().size() == 0) {
-                 tempIn = new HashSet<Expr>();
-             }
-             for (Node n_n : n.pred()) {
-                 tempIn.retainAll(oaeOut.get(n_n));
-             }
-
-             aeIn.put(n, tempIn);
-             aeOut.put(n, tempOut);
-         }
-
-
-         if (debug!=null) debug.recordCurrentMaps(aeIn, aeOut);
-     }
-
-
-     private boolean isFixeprivate void onePass() {
 	  for (Node n : cfg.nodes()) {
 	       /**
 		* On sauvegarde d'abord les ancienne valeur de aeIn et oaeOut
@@ -309,6 +214,17 @@ public class TP4AvailableExpressions {
 			 }
 		    }
 	       }
+           /* Si on fait un call ou un memwrite (tous ce qui pourrait affecter la memoire)
+           on efface toutes les expressions de lecture mémoire */
+           if (cfg.instr(n) instanceof MemWrite || cfg.instr(n) instanceof Call ) {
+               Set<Expr> to_remove_out = new HashSet<Expr>();
+               for (Expr e : tempOut) {
+                   if (e instanceof ReadExpr) {
+                       to_remove_out.add(e);
+                   }
+               }
+               tempOut.removeAll(to_remove_out);
+           }
 
 	       /**
 		*
@@ -338,7 +254,7 @@ public class TP4AvailableExpressions {
 	  if (debug!=null) debug.recordCurrentMaps(aeIn, aeOut);
      }
 
-     private boolean isFixedPointdPoint() {
+     private boolean isFixedPoint() {
 	  for(Node n : cfg.nodes())
 	  {
 	       if(!oaeIn.get(n).equals(aeIn.get(n)) || !oaeOut.get(n).equals(aeOut.get(n)))
