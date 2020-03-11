@@ -285,7 +285,7 @@ public class TP4AvailableExpressions {
 			      useDef_expr.put(n, new HashSet<Node>());
 			      continue;
 			 }
-			 
+
 			 Set<Node> use = new HashSet<Node>();
 			 for(Node p : n.pred())
 			 {
@@ -323,7 +323,7 @@ public class TP4AvailableExpressions {
 	       }
 	       else if (o instanceof MemRead){
 			 MemRead mr = (MemRead) o;
-			 ReadExpr re = new ReadExpr(re.MemRef);
+			 ReadExpr re = new ReadExpr(mr.memRef);
 			 if(e.equals(re)) {
 				 Set<Node> singleton = new HashSet<Node>();
 				 singleton.add(n);
