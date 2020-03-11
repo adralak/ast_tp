@@ -274,35 +274,36 @@ public class TP4AvailableExpressions {
 			      Set<Node> explored = explorer(p, bie);
 			      use.addAll(explored);
 			 }
-			 else if(o instanceof MemRead)
-			 {
-			      MemRead mr = (MemRead) o;
-			      ReadExpr mre = new ReadExpr(mr.memRef);
+		    }
+		    else if(o instanceof MemRead)
+		    {
+			 MemRead mr = (MemRead) o;
+			 ReadExpr mre = new ReadExpr(mr.memRef);
 
-			      if(!aeIn.get(n).contains(mre))
-			      {
-				   useDef_mr.put(n, new HashSet<Node>());
-				   continue;
-			      }
-			 
-			      Set<Node> use = new HashSet<Node>();
-			      for(Node p : n.pred())
-			      {
-				   Set<Node> explored = explorer(p, mre);
-				   use.addAll(explored);
-			      }
-
-			      useDef_mr.put(n, use);
-			 }
-			 else
+			 if(!aeIn.get(n).contains(mre))
 			 {
-			      useDef_expr.put(n, new HashSet<Node>());
 			      useDef_mr.put(n, new HashSet<Node>());
+			      continue;
 			 }
+			 
+			 Set<Node> use = new HashSet<Node>();
+			 for(Node p : n.pred())
+			 {
+			      Set<Node> explored = explorer(p, mre);
+			      use.addAll(explored);
+			 }
+
+			 useDef_mr.put(n, use);
+		    }
+		    else
+		    {
+			 useDef_expr.put(n, new HashSet<Node>());
+			 useDef_mr.put(n, new HashSet<Node>());
 		    }
 	       }
+	  }	      
 
-	       private Set<Node> explorer(Node n, Expr e)
+	       private Set<Node> explorer(Node n, BuiltInExpr e)
 	       {
 		    Object o = cfg.instr(n);
 		    Set<Node> union = new HashSet<Node>();
@@ -331,10 +332,44 @@ public class TP4AvailableExpressions {
 
 		    return union;
 	       }
-     
+
+	       private Set<Node> explorer(Node n, ReadExpr e)
+	       {
+		    Object o = cfg.instr(n);
+		    Set<Node> union = new HashSet<Node>();
+
+		    if(n.equals(cfg.entry()))
+			 return union;
+	       
+		    if(o instanceof MemRead)
+		    {
+			 MemRead mr = (MemRead) o;
+			 ReadExpr mre = new ReadExpr(mr.memRef);
+
+			 if(e.equals(mre))
+			 {
+			      union.add(n);
+			      return union;
+			 }
+		    }
+
+		    for(Node p : n.pred())
+		    {
+			 Set<Node> prev_expl = explorer(p, e);
+		    
+			 union.addAll(prev_expl);
+		    }
+
+		    return union;
+	       }
+
+	       
 	       public Set<Node> useDef(Node n)
 	       {
-		    return useDef_expr.get(n);
+		    if(useDef_expr.containsKey(n))
+			 return useDef_expr.get(n);
+		    else
+			 return useDef_mr.get(n);
 	       }
      
 	       private	class TP4InstrVisitor implements InstrVisitor<Expr> {

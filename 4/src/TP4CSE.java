@@ -71,8 +71,25 @@ public class TP4CSE extends Transform {
 	  return new_instrs;
      }
 
-     public TransformInstrResult transform(MemRead mr) {		
-	  return new TransformInstrResult(mr); //TODO
+     public TransformInstrResult transform(MemRead mr) {
+	  Instr new_instr;
+	  Node n = cfg.node(mr);	  
+
+	  if(used_temps.containsKey(n))
+	  {
+	       Ident id = used_temps.get(n);
+	       new_instr = new Assign(mr.ident, id);
+	  }
+	  else
+	       new_instr = mr;
+
+	  TransformInstrResult new_instrs = new TransformInstrResult(new_instr);
+
+	  for(Ident id : temps_to_make.get(n))
+	       new_instrs.addAfter.add(new Assign(id, mr.ident));
+
+	  return new_instrs;
+
      }
 
 }
