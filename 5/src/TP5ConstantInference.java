@@ -108,7 +108,7 @@ public class TP5ConstantInference {
 
 			     if(new_value == null)
 				  return cm;
-			     
+
 			     return cm.set(id, new_value);
 			}
 
@@ -231,6 +231,32 @@ public class TP5ConstantInference {
 					}
 					if ( !arg1.isTop() && !arg2.isTop()) {
 						return new IntOrTop(arg1.getInt() + arg2.getInt());
+					}
+					else {
+						return IntOrTop.top();
+					}
+				}
+				if (bi.operator == "Lt") {
+					IntOrTop arg1 = iot_args.get(0);
+					IntOrTop arg2 = iot_args.get(1);
+					if ( !arg1.isTop() && !arg2.isTop()) {
+						if ((arg1.getInt() < arg2.getInt())) {
+							return new IntOrTop(1);
+						}
+						return new IntOrTop(0);
+					}
+					else {
+						return IntOrTop.top();
+					}
+				}
+				if (bi.operator == "And") {
+					IntOrTop arg1 = iot_args.get(0);
+					IntOrTop arg2 = iot_args.get(1);
+					if ( !arg1.isTop() && !arg2.isTop()) {
+						if (!(arg1.getInt() == 0) && !(arg2.getInt() == 0)) {
+							return new IntOrTop(1);
+						}
+						return new IntOrTop(0);
 					}
 					else {
 						return IntOrTop.top();
