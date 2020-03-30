@@ -98,7 +98,7 @@ public class TP5ConstantInference {
 		if (o instanceof Instr) {
 			Instr i = (Instr) o;
 			Set<Ident> def = g.def(n);
-			
+
 			if(def.isEmpty())
 			     return cm;
 
@@ -107,7 +107,7 @@ public class TP5ConstantInference {
 			     IntOrTop new_value = i.accept(new TP5InstrVisitor());
 			     cm.set(id, new_value);
 			}
-			
+
 			return cm;
 		}
 		else return cm; // dans tous les autres cas (EndInstr), pas de changement
@@ -231,6 +231,9 @@ public class TP5ConstantInference {
 					else {
 						return IntOrTop.top();
 					}
+				}
+				else {
+					return null;
 				}
 		    }
 
