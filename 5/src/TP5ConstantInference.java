@@ -223,7 +223,7 @@ public class TP5ConstantInference {
 						return IntOrTop.top();
 					}
 				}
-				if (bi.operator == "Mult") {
+				if (bi.operator == "Mul") {
 					IntOrTop arg1 = iot_args.get(0);
 					IntOrTop arg2 = iot_args.get(1);
 					if (arg1.getInt() == 0 || arg2.getInt() == 0) {
