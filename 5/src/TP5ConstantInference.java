@@ -105,11 +105,11 @@ public class TP5ConstantInference {
 			for(Ident id : def)
 			{
 			     IntOrTop new_value = i.accept(new TP5InstrVisitor());
-			     
+
 			     if(new_value == null)
 				  return cm;
 			     
-			     cm.set(id, new_value);
+			     return cm.set(id, new_value);
 			}
 
 			return cm;
