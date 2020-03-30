@@ -1,6 +1,8 @@
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import rtl.*;
 import rtl.constant.*;
@@ -153,5 +155,85 @@ public class TP5ConstantInference {
 	public boolean isFixedPoint() {
 		return !this.hasChanged;
 	}
+
+
+	private	class TP5InstrVisitor implements InstrVisitor<IntOrTop> {
+		    /**
+		     * retourne l'expression pour les builtIn et les memRead
+		     */
+
+		    public IntOrTop visit(Assign a) {
+				Node n = g.node(a);
+				if (a.operand instanceof Ident) {
+					Ident id = (Ident) a.operand;
+					return ctIn.get(n).get(id);
+				}
+				LitInt li = (LitInt) a.operand;
+				return new IntOrTop(li.getVal());
+		    }
+
+		    public IntOrTop visit(BuiltIn bi) {
+			 	Node n = g.node(bi);
+				List<IntOrTop> iot_args = new LinkedList();
+				for (Operand op : bi.args) {
+					if (op instanceof Ident) {
+						Ident id = (Ident) op;
+						iot_args.add(ctIn.get(n).get(id));
+					}
+					else {
+						LitInt li = (LitInt) op;
+						iot_args.add(new IntOrTop(li.getVal()));
+					}
+				}
+				if (bi.operator == "Add") {
+					IntOrTop arg1 = iot_args.get(0);
+					IntOrTop arg2 = iot_args.get(1);
+					if ( !arg1.isTop() && !arg2.isTop()) {
+						return new IntOrTop(arg1.getInt() + arg2.getInt());
+					}
+					else {
+						return IntOrTop.top();
+					}
+				}
+				if (bi.operator == "Sub") {
+					IntOrTop arg1 = iot_args.get(0);
+					IntOrTop arg2 = iot_args.get(1);
+					if (bi.args.get(0).equals(bi.args.get(1))) {
+						return new IntOrTop(0);
+					}
+					else if ( !arg1.isTop() && !arg2.isTop()) {
+						return new IntOrTop(arg1.getInt() - arg2.getInt());
+					}
+					else {
+						return IntOrTop.top();
+					}
+				}
+				if (bi.operator == "Mult") {
+					IntOrTop arg1 = iot_args.get(0);
+					IntOrTop arg2 = iot_args.get(1);
+					if (arg1.getInt() == 0 || arg2.getInt() == 0) {
+						return new IntOrTop(0);
+					}
+					if ( !arg1.isTop() && !arg2.isTop()) {
+						return new IntOrTop(arg1.getInt() + arg2.getInt());
+					}
+					else {
+						return IntOrTop.top();
+					}
+				}
+		    }
+
+		    public IntOrTop visit(Call c) {
+			 return IntOrTop.top();
+		    }
+
+		    public IntOrTop visit(MemRead mr) {
+			 return IntOrTop.top();
+		    }
+
+		    public IntOrTop visit(MemWrite mw) {
+			 return null;
+		    }
+	       }
 
 }
