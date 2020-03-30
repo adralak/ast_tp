@@ -76,9 +76,9 @@ public class TP5ConstantInference {
 	 */
 	private ConstMap initial(Node n) {
 	     if(n == g.entry())
-		  return new ConstMap().top(allVars);
+		  return ConstMap.top(allVars);
 	     else
-		  return new ConstMap().bottom();
+		  return ConstMap.bottom();
 	}
 
 	/**
@@ -97,7 +97,18 @@ public class TP5ConstantInference {
 		Object o = this.g.instr(n);
 		if (o instanceof Instr) {
 			Instr i = (Instr) o;
-			return null; //TODO 2: définir la propriété de sortie selon n et cm
+			Set<Ident> def = g.def(n);
+			
+			if(def.isEmpty())
+			     return cm;
+
+			for(Ident id : def)
+			{
+			     IntOrTop new_value = i.accept(new TP5InstrVisitor());
+			     cm.set(id, new_value);
+			}
+			
+			return cm;
 		}
 		else return cm; // dans tous les autres cas (EndInstr), pas de changement
 	}
