@@ -74,9 +74,9 @@ public class TP5ConstantInference {
 	 */
 	private ConstMap initial(Node n) {
 	     if(n == g.entry())
-		  return new ConstMap().top(allVars);
+		  return ConstMap.top(allVars);
 	     else
-		  return new ConstMap().bottom();
+		  return ConstMap.bottom();
 	}
 
 	/**
