@@ -73,7 +73,10 @@ public class TP5ConstantInference {
 	 *           l'analyse.
 	 */
 	private ConstMap initial(Node n) {
-		return ConstMap.bottom(); //TODO 1: définir initiale selon n
+	     if(n == g.entry())
+		  return new ConstMap().top(allVars);
+	     else
+		  return new ConstMap().bottom();
 	}
 
 	/**
